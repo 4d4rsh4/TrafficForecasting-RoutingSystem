@@ -1,0 +1,355 @@
+/* ===== Loader ===== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+#loader .logo {
+  color: #00ffe0;
+  font-size: 32px;
+  letter-spacing: 4px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%{opacity:0.4} 50%{opacity:1} 100%{opacity:0.4} }
+body.loading { overflow: hidden; }
+body.loaded { animation: fadeIn 0.6s ease forwards; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* ===== Reset & Base ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Arial, sans-serif;
+  color: #e0e0e0;
+  /* Night city traffic theme background */
+  background: linear-gradient(135deg, #0b0c1a, #1c1c2a, #2a0b0b, #0b2a1c, #1c1c1c);
+  background-size: 800% 800%;
+  animation: gradientShift 25s ease infinite;
+  scroll-behavior: smooth;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== Collapsible Sidebar ===== */
+/* ===== Sidebar ===== */
+.topbar {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 87px; /* collapsed width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  background: rgba(20,10,40,0.75);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  overflow: hidden;
+  transition: width 0.4s ease;
+  z-index: 1000;
+}
+
+/* Hover expands sidebar */
+.topbar:hover {
+  width: 120px; /* expanded width */
+  align-items: flex-start;
+}
+
+/* Nav container */
+.nav-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Links */
+.nav-container a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: #ccc;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 4px 0;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Link text container */
+.nav-container .link-text {
+  margin-left: 8px;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease;
+}
+
+/* Show only active link text when collapsed */
+.topbar:not(:hover) .nav-container .link-text {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+.topbar:not(:hover) .nav-container a.active .link-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Show all link texts on hover */
+.topbar:hover .nav-container .link-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Hover effect for links */
+.nav-container a:hover {
+  color: #00ffe0;
+  background: rgba(255,255,255,0.05);
+}
+
+/* Active link style */
+.nav-container a.active {
+  color: #00ffe0;
+  font-weight: 600;
+  background: rgba(0,255,224,0.05);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .topbar {
+    width: 50px;
+  }
+  .topbar:hover {
+    width: 150px;
+  }
+  .nav-container a {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+/* ===== Sections ===== */
+section {
+  height: 100vh;
+  scroll-snap-align: start;
+  padding: 100px 50px 50px 120px;
+  box-sizing: border-box;
+}
+section h1 { margin-bottom: 20px; font-size: 48px; color: #00ffe0; }
+section p { font-size: 18px; max-width: 700px; color: #ccc; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .topbar { width: 50px; padding: 8px 5px; }
+  .topbar:hover { width: 120px; }
+  .topbar .logo { width: 35px; height: 35px; }
+  .topbar:hover .logo { width: 45px; height: 45px; transform: translateX(-8px); }
+  .nav-container a { padding: 6px 10px; font-size: 14px; }
+  section { padding-left: 150px; padding-top: 80px; }
+}
+
+/* ===== HOME SECTION ===== */
+.home-section { padding-left: 120px; height: 100vh; overflow: hidden; }
+
+/* HOME GRID */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 50% | 50% */
+  gap: 20px;
+  height: 100%;
+}
+
+/* RIGHT COLUMN STACK */
+.right-column {
+  display: grid;
+  grid-template-rows: 1fr 1fr; /* Weather top, Fire button bottom */
+  gap: 20px;
+}
+
+/* ===== MAP ===== */
+.map-box {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  height: 100%;
+  background: rgba(0,0,0,0.5); /* dark night overlay */
+  box-shadow: 0 6px 20px rgba(0,255,224,0.15);
+}
+.map-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: brightness(0.85) contrast(1.1);
+}
+.map-box:hover img { transform: scale(1.03); filter: brightness(1) contrast(1.15); }
+.map-hint {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: rgba(0,0,0,0.5);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #00ffe0;
+}
+/* Fullscreen map */
+.map-box.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  border-radius: 0;
+  background: rgba(0,0,0,0.95);
+}
+.map-box.fullscreen img { object-fit: contain; filter: brightness(1) contrast(1.1); }
+
+/* ===== WEATHER ===== */
+.weather-box {
+  background: rgba(10,15,25,0.75);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,255,224,0.15);
+  transition: transform 0.3s;
+}
+.weather-box:hover {
+  transform: translateY(-3px); /* subtle lift on hover */
+}
+.weather-box h3 { color: #00ffe0; margin-bottom: 10px; }
+.weather-box #temp { font-size: 40px; margin: 10px 0; }
+.weather-box label {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+}
+.weather-box select {
+ 
+  padding: 8px 12px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.3s;
+}
+.weather-box input:focus,
+.weather-box select:focus {
+  border-color: #4a90e2; /* subtle focus highlight */
+}
+
+/* Button */
+.weather-box button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.weather-box button:hover {
+  background-color: #357ab8;
+  transform: translateY(-2px);
+}
+
+/* Weather Result Box */
+.weather-result {
+  margin-top: 20px;
+  background: linear-gradient(to bottom right, #fdfdfd, #f5f7fa); /* soft gradient */
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  color: #333;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Individual Weather Lines */
+.weather-result p {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+/* Weather Temperature */
+#w-temp {
+  font-size: 15px;
+  font-weight: bold;
+  color: #0a0a0a;
+}
+
+/* Weather Description */
+#w-desc {
+  text-transform: capitalize;
+  font-style: italic;
+  color: #555;
+}
+
+/* Weather Time */
+#w-time {
+  font-weight: 600;
+  margin-top: 5px;
+  color: #2c3e50;
+}
+/* ===== SIMULATE BUTTON ===== */
+.simulate-box { display: flex; align-items: center; justify-content: center; }
+.fire-btn {
+  font-size: 15px;
+  padding: 20px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(45deg, #ff4500, #ff9100);
+  box-shadow: 0 0 25px rgba(255,140,0,0.5);
+  animation: firePulse 1.5s infinite;
+}
+@keyframes firePulse {
+  0% { box-shadow: 0 0 20px rgba(255,60,0,0.4); }
+  50% { box-shadow: 0 0 40px rgba(255,120,0,0.9); }
+  100% { box-shadow: 0 0 20px rgba(255,60,0,0.4); }
+}
+
+/* ===== CONTACT SECTION ===== */
+.contact-vertical {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+.contact-column {
+  flex: 1 1 250px;
+  background: rgba(10,15,25,0.8); /* night city theme */
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0,255,224,0.15);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.contact-column:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,255,224,0.25); }
+.contact-column h3 { color: #00ffe0; margin-bottom: 15px; font-size: 22px; }
+.contact-column p { font-size: 16px; color: #ccc; margin-bottom: 10px; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .contact-vertical { flex-direction: column; gap: 20px; align-items: center; }
+}
