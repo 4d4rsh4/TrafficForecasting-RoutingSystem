@@ -1,185 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lagraj</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficControl - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --bg-card: rgba(39, 39, 42, 0.4);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 24px 16px; z-index: 100;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; margin-bottom: 40px; color: white; text-decoration: none; }
+        .brand i { color: var(--accent); font-size: 24px; }
+        .nav-links { display: flex; flex-direction: column; gap: 12px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-size: 14px; transition: 0.2s; }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-link.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* --- SCROLLABLE MAIN CONTENT --- */
+        .main-container {
+            flex: 1;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+        }
+
+        section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            padding: 40px;
+            display: flex; flex-direction: column;
+        }
+
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 32px; font-weight: 600; margin-bottom: 6px; }
+        .header p { color: var(--text-muted); }
+
+        /* --- GLASS CARDS --- */
+        .card { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .card-header i { color: var(--accent); }
+        .full-card { flex: 1; display: flex; flex-direction: column; }
+
+        /* Map specific */
+        .overview-map-card { 
+            flex: 1; 
+            width: 100%;
+            min-height: 550px; /* Forces the map to stay open */
+            position: relative; 
+            padding: 0; 
+            overflow: hidden; 
+            border: 2px solid var(--border-color); 
+            border-radius: 16px;
+        }
+        #map-frame { 
+            position: absolute; /* Pins the iframe to the corners */
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            border: none; 
+        }
+        .map-overlay { position: absolute; top: 20px; right: 20px; width: 250px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .btn-launch { 
+            position: absolute; bottom: 30px; right: 30px; 
+            background: var(--accent); color: white; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: 600;
+            box-shadow: 0 0 20px var(--accent-glow); transition: 0.3s; pointer-events: auto;
+        }
+        .btn-launch:hover { transform: translateY(-3px); box-shadow: 0 0 30px var(--accent-glow); }
+
+        /* --- ABOUT SYSTEM STYLES --- */
+        .about-layout { display: flex; flex-direction: column; gap: 30px; }
+        .about-text { color: #cbd5e1; line-height: 1.8; font-size: 15px; }
+        .about-text p { margin-bottom: 15px; }
+        .about-text strong { color: var(--accent); }
+        
+        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 10px; }
+        .tech-card { background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); transition: 0.3s; }
+        .tech-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(59, 130, 246, 0.05); }
+        .tech-card i { font-size: 28px; color: var(--accent); margin-bottom: 15px; }
+        .tech-card h4 { font-size: 16px; color: white; margin-bottom: 10px; }
+        .tech-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+        /* --- CONTACT STYLES --- */
+        .contact-layout { display: flex; gap: 40px; height: 100%; }
+        .team-section { flex: 2; }
+        .uni-section { flex: 1; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.3); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); text-align: center; }
+        
+        .team-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .team-card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .team-card h4 { font-size: 18px; color: white; margin-bottom: 5px; }
+        .team-card .roll-no { font-size: 12px; color: var(--accent); font-family: monospace; letter-spacing: 1px; margin-bottom: 15px; display: inline-block; padding: 4px 8px; background: rgba(59, 130, 246, 0.1); border-radius: 4px; }
+        .team-card p { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .team-card p i { color: #64748b; width: 16px; }
+
+        .uni-section img { width: 100px; height: 100px; margin: 0 auto 20px; opacity: 0.8; filter: grayscale(100%) brightness(200%); }
+        .uni-section h3 { font-size: 20px; color: white; margin-bottom: 10px; }
+        .uni-section h5 { font-size: 14px; color: var(--accent); margin-bottom: 20px; font-weight: 500; }
+        .uni-section p { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
+        .badge { display: inline-block; margin-top: 20px; padding: 8px 16px; background: rgba(59, 130, 246, 0.15); border: 1px solid var(--accent); color: var(--accent); border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
+
+    </style>
 </head>
-<body class="loading">
+<body>
 
-  <!-- Loader -->
-  <div id="loader">
-    <div class="logo">
-      <img src="logo.png" alt="Logo">
-    </div>
-  </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="#" class="brand"><i class="fa-solid fa-route"></i> TrafficControl</a>
+        <nav class="nav-links">
+            <a href="#home" class="nav-link active"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#about" class="nav-link"><i class="fa-solid fa-circle-info"></i> About System</a>
+            <a href="#contact" class="nav-link"><i class="fa-solid fa-address-book"></i> Contact Us</a>
+        </nav>
+    </aside>
 
-  <!-- Collapsible Sidebar -->
- <nav class="topbar">
-  <div class="nav-container">
-    <a href="#home" class="nav-link active"><span class="link-text">Home</span></a>
-    <a href="#about" class="nav-link"><span class="link-text">About</span></a>
-    <a href="#contact" class="nav-link"><span class="link-text">Contact</span></a>
-  </div>
-</nav>
-
-  <!-- Sections -->
-  <!-- Replace just the HOME section in your HTML with this: -->
-<section id="home">
-  <div class="home-container">
-    <div class="home-grid">
-      
-      <!-- LEFT COLUMN: MAP -->
-      <div class="map-column">
-        <div class="map-header">
-          <h2>Traffic Network Map</h2>
-          <p>Real-time traffic visualization</p>
-        </div>
-        <div class="map-box" id="mapBox">
-          <img src="map.png" alt="Traffic Map">
-          <span class="map-hint">Click to expand</span>
-        </div>
-      </div>
-
-      <!-- MIDDLE COLUMN: WEATHER -->
-      <div class="weather-column">
-        <div class="weather-box">
-          <div class="weather-header">
-            <h3>Weather</h3>
-            <p>Real-time weather conditions</p>
-          </div>
-          
-          <div class="weather-form">
-            <div class="form-group">
-              <label>Country</label>
-              <select id="country">
-                <option value="US" selected>United States</option>
-                <option value="IN">India</option>
-                <option value="NP">Nepal</option>
-                <option value="GB">United Kingdom</option>
-                <option value="CA">Canada</option>
-                <option value="AU">Australia</option>
-              </select>
+    <div class="main-container">
+        <!-- SECTION 1: LANDING & DYNAMIC MAP -->
+        <section id="home">
+            <div class="header">
+                <h1>Global Network Overview</h1>
+                <p>Live Spatio-Temporal traffic state generated by GCN-GRU model</p>
             </div>
-
-            <div class="form-group">
-              <label>Region / City</label>
-              <input type="text" id="cityInput" placeholder="Enter city" value="Florida">
+            <div class="card overview-map-card">
+                <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
+                <div class="map-overlay">
+                    <div class="card" style="padding: 15px; background: rgba(9,9,11,0.8);">
+                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Network Reliability</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #10b981;">84.2%</div>
+                    </div>
+                </div>
+                <a href="simulate.html" class="btn-launch"><i class="fa-solid fa-play"></i> Launch Simulation</a>
             </div>
+        </section>
 
-            <button id="getWeather">Get Weather</button>
-
-            <div class="weather-result">
-              <p id="w-city">—</p>
-              <p id="w-temp">— °C</p>
-              <p id="w-desc">—</p>
-              <p id="w-time">—</p>
+        <!-- SECTION 2: ABOUT SYSTEM -->
+        <section id="about">
+            <div class="full-card card">
+                <div class="card-header">
+                    <i class="fa-solid fa-microchip fa-2x"></i>
+                    <h2 style="font-size: 26px;">System Architecture & Methodology</h2>
+                </div>
+                <div class="about-layout">
+                    <div class="about-text">
+                        <p>Urban traffic congestion has become a critical challenge, resulting in massive economic losses, environmental degradation, and increased commute times. Traditional traffic management systems are inherently <strong>reactive</strong>—addressing bottlenecks only after they have already formed.</p>
+                        <p>This Major Project proposes a <strong>proactive, AI-driven solution</strong>. By leveraging historical sensor data (PeMS) and advanced Deep Learning architectures, our system forecasts congestion patterns before they happen. These predictions are actively fed into a dynamic routing engine, empowering users and city planners to mitigate gridlock preemptively.</p>
+                    </div>
+                    
+                    <div class="tech-grid">
+                        <div class="tech-card">
+                            <i class="fa-solid fa-diagram-project"></i>
+                            <h4>Graph Convolutional Networks</h4>
+                            <p>Traditional algorithms fail to understand physical road layouts. We model the city as a mathematical graph, utilizing GCNs to capture the complex spatial dependencies and physical connectivity between intersections.</p>
+                        </div>
+                        <div class="tech-card">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <h4>Gated Recurrent Units (GRU)</h4>
+                            <p>To understand the flow of time (rush hours, weekdays vs. weekends), we employ GRUs. This advanced RNN architecture solves the vanishing gradient problem, allowing the model to learn deep temporal sequences from historical traffic flows.</p>
+                        </div>
+                        <div class="tech-card">
+                            <i class="fa-solid fa-route"></i>
+                            <h4>Predictive A* Routing</h4>
+                            <p>Unlike standard GPS that uses current distance, our system modifies the edge weights of the road graph using the model's future time predictions. The A* algorithm then computes the mathematically optimal alternate route to avoid future congestion.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
+        </section>
 
-        <!-- SIMULATE BUTTON -->
-        <div class="simulate-box">
-          <a href="simulate.html" class="fire-btn">SIMULATE TRAFFIC</a>
-        </div>
-      </div>
+        <!-- SECTION 3: CONTACT / TEAM -->
+        <section id="contact">
+            <div class="full-card card">
+                <div class="card-header">
+                    <i class="fa-solid fa-users-gear fa-2x"></i>
+                    <h2 style="font-size: 26px;">Project Development Team</h2>
+                </div>
+                
+                <div class="contact-layout">
+                    <!-- Left: Team Members -->
+                    <div class="team-section">
+                        <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 15px;">
+                            This platform was developed as a Major Project [CT707] by final-year engineering students.
+                        </p>
+                        <div class="team-grid">
+                            <div class="team-card">
+                                <h4>Adarsha Rai</h4>
+                                <span class="roll-no">KAT078BCT014</span>
+                                <p><i class="fa-solid fa-code"></i> Model Research & Data Pipeline</p>
+                                <p><i class="fa-solid fa-envelope"></i> adasrharai03t@gmail.com</p>
+                            </div>
+                            <div class="team-card">
+                                <h4>Agraj Singh Adhikari</h4>
+                                <span class="roll-no">KAT078BCT016</span>
+                                <p><i class="fa-solid fa-server"></i> System Integration & Backend</p>
+                                <p><i class="fa-solid fa-envelope"></i> agraj@example.com</p>
+                            </div>
+                            <div class="team-card">
+                                <h4>Amuhang Limbu Rai</h4>
+                                <span class="roll-no">KAT078BCT017</span>
+                                <p><i class="fa-solid fa-pen-nib"></i> Documentation & Analysis</p>
+                                <p><i class="fa-solid fa-envelope"></i> amuhang@example.com</p>
+                            </div>
+                            <div class="team-card">
+                                <h4>Gaurav Adhikari</h4>
+                                <span class="roll-no">KAT078BCT034</span>
+                                <p><i class="fa-solid fa-layer-group"></i> Frontend Architecture & UI/UX</p>
+                                <p><i class="fa-solid fa-envelope"></i> gaurav399@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
 
-      <!-- RIGHT COLUMN: CONTENT -->
-      <div class="content-column">
-        <div class="content-box">
-          <h3>Traffic Stats</h3>
-          <p>Current traffic conditions and statistics</p>
-          
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value">85%</div>
-              <div class="stat-label">Road Usage</div>
+                    <!-- Right: University Details -->
+                    <div class="uni-section">
+                        <!-- FontAwesome icon as a placeholder for the university crest -->
+                        <i class="fa-solid fa-building-columns fa-4x" style="color: rgba(255,255,255,0.2); margin-bottom: 25px;"></i>
+                        <h3>Tribhuvan University</h3>
+                        <h5>Institute of Engineering</h5>
+                        <div style="width: 50px; height: 2px; background: var(--accent); margin: 15px auto;"></div>
+                        <p style="font-weight: 600; color: #f8fafc; font-size: 15px;">Kathmandu Engineering College</p>
+                        <p>Kalimati, Kathmandu</p>
+                        <p>Department of Computer Engineering</p>
+                        
+                        <div>
+                            <span class="badge">MAJOR PROJECT [CT707]</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-value">42 km/h</div>
-              <div class="stat-label">Avg Speed</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">1,240</div>
-              <div class="stat-label">Vehicles/Hour</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">12 min</div>
-              <div class="stat-label">Avg Delay</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="content-box">
-          <h3>Traffic Status</h3>
-          <div class="traffic-status">
-            <div class="status-item good">
-              <span class="status-name">Downtown</span>
-              <span class="status-value">Light Traffic</span>
-            </div>
-            <div class="status-item moderate">
-              <span class="status-name">Highway I-94</span>
-              <span class="status-value">Moderate</span>
-            </div>
-            <div class="status-item heavy">
-              <span class="status-name">Bridge Approach</span>
-              <span class="status-value">Heavy</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</section>
-
-  <section id="about">
-    <h1>About</h1>
-    <p>Traffic congestion is a condition that occurs when the number of vehicles exceeds the capacity of a road or an intersection. It is characterized by vehicular pile ups, slower speeds and longer trip times. Traffic congestion has increased significantly since the 1950s. This has resulted in many urban roads becoming disused. Mathematically, traffic flow is often modeled similarly to fluid dynamics as a flow through fixed points on the route. Traffic congestion is a growing problem in many cities around the world. Rapid urbanization, increasing vehicle numbers, narrow road networks and inefficient traffic management lead to frequent traffic jams, longer commute times, higher fuel consumption, and increased environmental pollution. These issues reduce productivity and the quality of life for citizens.
-Traditional traffic management methods are mainly reactive and rely on manual monitoring or historical averages, which fail to analyze congestion patterns accurately. These systems also rely on fixed signal timings that do not adapt to changing traffic conditions, resulting in inefficient traffic flow and congestion. This makes it difficult to implement timely interventions or for commuters to plan optimally.
-This project aims to develop a predictive model using machine learning algorithms to forecast congestion levels in advance and use it to control traffic signals to reduce congestion or even avoid it altogether. 
- </p>
-  </section>
-
-<section id="contact">
-  <h1>Contact</h1>
-
-  <div class="contact-vertical">
-
-    <!-- Phone Numbers -->
-    <div class="contact-column">
-      <h3>Contact Numbers</h3>
-      <p>📞 +977 9806780118</p>
-      <p>📞 +977 9817544291</p>
-      <p>📞 +977 9745323128</p>
+        </section>
     </div>
 
-    <!-- Social Media -->
-    <div class="contact-column">
-      <h3>Social Media</h3>
-      <p>🌐 Instagram: @ediotis</p>
-      <p>🌐 Twitter (X): @congest</p>
-      <p>🌐 LinkedIn: controluday-official</p>
-    </div>
+    <script>
+        // 1. Fetch the Global Map on load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('http://127.0.0.1:5000/get_overview_map')
+            .then(res => res.json())
+            .then(data => {
+                if(data.map_html) {
+                    document.getElementById('map-frame').srcdoc = data.map_html;
+                }
+            })
+            .catch(err => console.error("Could not load overview map. Is app.py running?", err));
+        });
 
-    <!-- Gmail / Email -->
-    <div class="contact-column">
-      <h3>Email</h3>
-      <p>✉️ gaurav399@gmail.com</p>
-      <p>✉️ ediotis31@gmail.com</p>
-      <p>✉️ adasrharai03t@gmail.com</p>
-    </div>
+        // 2. Active Link Highlighting on Scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const container = document.querySelector('.main-container');
 
-  </div>
-</section>
+        container.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (container.scrollTop >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
 
-
-
-
-  <!-- Script -->
-  <script src="script.js"></script>
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

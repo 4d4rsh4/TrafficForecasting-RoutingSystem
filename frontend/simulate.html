@@ -3,57 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routing Simulation</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Spatio-Temporal Traffic Simulation</title>
+    <!-- Modern Font and Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { background: #0f172a; display: flex; flex-direction: column; align-items: center; padding-top: 20px; font-family: 'Inter', sans-serif;}
-        .container { background: rgba(30, 41, 59, 0.9); border-radius: 20px; padding: 30px; width: 90%; max-width: 1200px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.2); }
-        h1 { color: #60a5fa; text-align: center; margin-bottom: 5px; }
-        p.subtitle { color: #94a3b8; text-align: center; margin-bottom: 25px; }
-        .controls { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; align-items: center;}
-        .controls select, .controls input { padding: 12px; border-radius: 10px; border: 2px solid rgba(59, 130, 246, 0.4); background: #1e293b; color: white; font-size: 16px; outline: none; }
-        .controls select:focus, .controls input:focus { border-color: #3b82f6; }
-        .controls button { padding: 12px 25px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: transform 0.2s; }
-        .controls button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
-        #map-container { width: 100%; height: 600px; border: 2px solid rgba(59, 130, 246, 0.2); border-radius: 15px; overflow: hidden; background: #0f172a; position: relative;}
-        #map-container iframe { width: 100%; height: 100%; border: none; }
-        #loader-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; color: #60a5fa; font-size: 20px; font-weight: bold; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #3b82f6; animation: spin 1s linear infinite; margin-bottom: 15px;}
+        /* --- MODERN AI DASHBOARD CSS --- */
+        :root {
+            --bg-dark: #09090b;
+            --bg-card: rgba(39, 39, 42, 0.4);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            padding: 0 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .brand i { color: var(--accent); font-size: 24px; }
+
+        .nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-link.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+        .header p { color: var(--text-muted); font-size: 15px; }
+
+        /* --- GLASS CARDS --- */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            height: 100%;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- CONTROLS SECTION --- */
+        .controls-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s;
+            appearance: none;
+        }
+
+        .custom-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        select.custom-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            height: 50px; /* Match input height */
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 0 20px var(--accent-glow); }
+        .btn-primary:active { transform: translateY(1px); }
+
+        /* --- MAP CONTAINER --- */
+        .map-card {
+            flex: 1;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+            min-height: 500px;
+        }
+
+        #map-frame { width: 100%; height: 100%; border: none; border-radius: 16px; }
+
+        /* --- LOADER OVERLAY --- */
+        #loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(9, 9, 11, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 16px;
+        }
+
+        .modern-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-text { color: white; font-size: 16px; font-weight: 500; letter-spacing: 0.5px; animation: pulse 2s infinite; }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Traffic Simulation</h1>
-        <p class="subtitle">GCN-GRU Spatio-Temporal Predictive Routing</p>
-        
-        <div class="controls">
-            <select id="sim_day">
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday" selected>Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-            </select>
-            
-            <input type="number" id="sim_hour" min="0" max="23" value="17" placeholder="Hour (0-23)">
-            <span>: 00</span>
-            
-            <button id="findRouteBtn">Simulate Traffic & Route</button>
-        </div>
-        
-        <div id="map-container">
-            <div id="loader-overlay">
-                <div class="spinner"></div>
-                <span>Querying Model & Generating Map...</span>
-            </div>
-            <iframe id="map-frame" src="about:blank"></iframe>
-        </div>
-    </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="#" class="brand">
+            <i class="fa-solid fa-route"></i>
+            TrafficControl
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+            <a href="#" class="nav-link active">
+                <i class="fa-solid fa-chart-network"></i> Simulation Model
+            </a>
+            <a href="index.html#about" class="nav-link">
+                <i class="fa-solid fa-circle-info"></i> About System
+            </a>
+        </nav>
+    </aside>
 
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Traffic Simulation</h1>
+            <p>GCN-GRU Spatio-Temporal Predictive Routing Engine</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Controls Card -->
+            <div class="card">
+                <div class="controls-row">
+                    <div class="input-group">
+                        <label for="sim_day">Prediction Day</label>
+                        <select id="sim_day" class="custom-input">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday" selected>Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="sim_hour">Time of Day (24H)</label>
+                        <input type="number" id="sim_hour" class="custom-input" min="0" max="23" value="17" placeholder="e.g., 17 for 5 PM">
+                    </div>
+                    
+                    <button id="findRouteBtn" class="btn-primary">
+                        <i class="fa-solid fa-microchip"></i> Run AI Simulation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Output Card -->
+            <div class="card map-card" style="display: flex; flex-direction: column;">
+                <div id="loader-overlay">
+                    <div class="modern-spinner"></div>
+                    <div class="loader-text">Querying GCN-GRU Model...</div>
+                </div>
+                <!-- scrolling="no" prevents the weird double scrollbar -->
+                <iframe id="map-frame" src="about:blank" scrolling="no" style="flex: 1;"></iframe>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript to handle the backend connection -->
     <script>
         document.getElementById('findRouteBtn').addEventListener('click', () => {
             const day = document.getElementById('sim_day').value;
@@ -65,7 +291,7 @@
                 return;
             }
 
-            // Fixed coordinates for a major stretch of I-94 (St. Paul to Minneapolis)
+            // Fixed coordinates for I-94 stretch
             const payload = {
                 day: day,
                 hour: parseInt(hour),
@@ -75,8 +301,10 @@
                 end_lon: -93.2810  
             };
             
+            // Show Loader
             loader.style.display = 'flex';
 
+            // Make API Call to Flask Backend
             fetch('http://127.0.0.1:5000/get_route', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -95,7 +323,7 @@
             .catch(error => {
                 loader.style.display = 'none';
                 console.error('Error:', error);
-                alert('Failed to connect to the backend server.');
+                alert('Failed to connect to the backend server. Make sure app.py is running.');
             });
         });
     </script>
