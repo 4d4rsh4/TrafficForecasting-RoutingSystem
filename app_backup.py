@@ -31,12 +31,12 @@ class TrafficPredictor(nn.Module):
 
 # Load the model state
 model = TrafficPredictor(input_dim=309, hidden_dim=64, num_layers=2, output_steps=12, num_sensors=307)
-model.load_state_dict(torch.load('traffic_model.pth'))
+model.load_state_dict(torch.load('traffic_model_temporal.pth'))
 model.eval() # Set model to evaluation mode
 
 # --- 3. LOAD & PREPARE DATA FOR PREDICTION CONTEXT ---
 # We need the scaler and historical data to make new predictions
-raw_data = np.load('data/PeMS/pems04.npz')['data']
+raw_data = np.load('data/pems04.npz')['data']
 data = raw_data[:, :, 0]
 
 scaler = StandardScaler()
