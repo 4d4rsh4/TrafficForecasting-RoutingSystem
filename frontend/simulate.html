@@ -1,10 +1,10 @@
-<!-- START OF UPDATED FILE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spatio-Temporal Traffic Simulation</title>
+    
     <!-- Modern Font and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,261 +47,111 @@
             background: rgba(9, 9, 11, 0.8);
             backdrop-filter: blur(12px);
             border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            z-index: 10;
+            display: flex; flex-direction: column; padding: 24px 16px; z-index: 10;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 40px;
-            padding: 0 10px;
-            color: white;
-            text-decoration: none;
-        }
-
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; margin-bottom: 40px; padding: 0 10px; color: white; text-decoration: none; }
         .brand i { color: var(--accent); font-size: 24px; }
-
         .nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
         .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
         .nav-link.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
 
         /* --- MAIN CONTENT --- */
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 32px;
-            overflow-y: auto;
+            flex: 1; display: flex; flex-direction: column; padding: 32px; overflow-y: auto; position: relative;
         }
 
-        .header { margin-bottom: 24px; }
+        .header { margin-bottom: 24px; flex-shrink: 0; }
         .header h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
         .header p { color: var(--text-muted); font-size: 15px; }
 
         /* --- GLASS CARDS --- */
-        .dashboard-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            height: 100%;
-        }
-
         .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color); border-radius: 16px;
+            padding: 24px; box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
 
         /* --- CONTROLS SECTION --- */
-        .controls-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .input-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .controls-row { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; }
+        .input-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
         .custom-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 14px 16px;
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s;
-            appearance: none;
+            width: 100%; height: 48px; box-sizing: border-box; background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color); color: white; padding: 12px 16px;
+            border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s; appearance: none;
         }
-
         .custom-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
         select.custom-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
 
         .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 15px var(--accent-glow);
-            height: 50px;
+            background: var(--accent); color: white; border: none; padding: 0 28px;
+            border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 0 15px var(--accent-glow); height: 48px; box-sizing: border-box;
         }
-
         .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 0 20px var(--accent-glow); }
         .btn-primary:active { transform: translateY(1px); }
 
-        /* --- MAP CONTAINER --- */
-        .map-card {
-            flex: 1;
-            padding: 0;
-            overflow: hidden;
-            position: relative;
-            min-height: 500px;
-        }
+        /* --- MAP SELECTOR --- */
+        .map-selector-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .map-selector-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .map-selector-header h3 { color: white; font-size: 16px; }
+        #selector-map { width: 100%; height: 350px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 12px; display: block; }
+        .map-instructions { font-size: 13px; color: var(--text-muted); display: block; }
+        .map-instructions i { margin-right: 6px; color: var(--accent); }
 
-        #map-frame { width: 100%; height: 100%; border: none; border-radius: 16px; }
-
-        /* --- LOADER OVERLAY --- */
-        #loader-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(9, 9, 11, 0.7);
-            backdrop-filter: blur(8px);
-            display: none;
+        /* --- RESULT VIEW (HIDDEN INITIALLY) --- */
+        #result-view {
+            display: none; /* Hidden by default */
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            border-radius: 16px;
+            height: calc(100vh - 150px); /* Takes up full remaining screen */
+            padding: 0; overflow: hidden;
         }
+        .result-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 24px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color);
+        }
+        .result-header h3 { color: white; font-size: 18px; display: flex; align-items: center; gap: 10px;}
+        .result-header h3 i { color: #10b981; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1); color: var(--text-main); border: 1px solid var(--border-color);
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: white; }
+        #map-frame { width: 100%; flex: 1; border: none; border-radius: 0 0 16px 16px; }
 
+        /* --- GLOBAL LOADER OVERLAY --- */
+        #loader-overlay {
+            position: fixed; inset: 0; background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(10px);
+            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
+        }
         .modern-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
         }
-
-        .loader-text { color: white; font-size: 16px; font-weight: 500; letter-spacing: 0.5px; animation: pulse 2s infinite; }
+        .loader-text { color: white; font-size: 18px; font-weight: 500; letter-spacing: 0.5px; animation: pulse 2s infinite; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        /* --- MAP SELECTOR --- */
-        .map-selector-section {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .map-selector-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .map-selector-header h3 {
-            color: white;
-            font-size: 16px;
-        }
-
-        .map-toggle-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            color: var(--accent);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .map-toggle-btn:hover {
-            background: rgba(59, 130, 246, 0.3);
-            border-color: var(--accent);
-        }
-
-        .map-toggle-btn.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        #selector-map {
-            width: 100%;
-            height: 300px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 12px;
-            display: none;
-        }
-
-        #selector-map.active {
-            display: block;
-        }
-
-        .map-instructions {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: none;
-        }
-
-        .map-instructions.active {
-            display: block;
-        }
-
-        .map-instructions i {
-            margin-right: 6px;
-            color: var(--accent);
-        }
     </style>
 </head>
 <body>
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <a href="#" class="brand">
-            <i class="fa-solid fa-route"></i>
-            TrafficControl
+        <a href="index.html" class="brand">
+            <i class="fa-solid fa-route"></i> TrafficControl
         </a>
         <nav class="nav-links">
-            <a href="index.html" class="nav-link">
-                <i class="fa-solid fa-house"></i> Home
-            </a>
-            <a href="#" class="nav-link active">
-                <i class="fa-solid fa-chart-network"></i> Simulation Model
-            </a>
-            <a href="index.html#about" class="nav-link">
-                <i class="fa-solid fa-circle-info"></i> About System
-            </a>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#" class="nav-link active"><i class="fa-solid fa-chart-network"></i> Simulation Model</a>
+            <a href="index.html#about" class="nav-link"><i class="fa-solid fa-circle-info"></i> About System</a>
         </nav>
     </aside>
 
@@ -312,130 +162,149 @@
             <p>GCN-GRU Spatio-Temporal Predictive Routing Engine (PeMS04)</p>
         </div>
 
-        <div class="dashboard-grid">
-            <!-- Controls Card -->
-            <div class="card">
-                <!-- Map Selector Section -->
-                <div class="map-selector-section">
-                    <div class="map-selector-header">
-                        <h3><i class="fa-solid fa-map-pin"></i> Select Points on Map</h3>
-                        <button class="map-toggle-btn" id="mapToggleBtn">
-                            <i class="fa-solid fa-map"></i> Open Map
-                        </button>
-                    </div>
-                    <div id="selector-map"></div>
-                    <div class="map-instructions" id="mapInstructions">
-                        <i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red)
-                    </div>
+        <!-- ========================================== -->
+        <!-- VIEW 1: SETUP (PARAMETERS)                 -->
+        <!-- ========================================== -->
+        <div id="setup-view" class="card">
+            
+            <div class="map-selector-section">
+                <div class="map-selector-header">
+                    <h3><i class="fa-solid fa-map-pin"></i> Select Points on Map</h3>
                 </div>
-
-                <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                    <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Starting Point</h3>
-                    <div class="controls-row">
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="start_lat">Latitude</label>
-                            <input type="number" id="start_lat" class="custom-input" step="0.0001" value="37.7749" placeholder="37.0 to 38.5">
-                        </div>
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="start_lon">Longitude</label>
-                            <input type="number" id="start_lon" class="custom-input" step="0.0001" value="-122.4194" placeholder="-123 to -121">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                    <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Destination</h3>
-                    <div class="controls-row">
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="end_lat">Latitude</label>
-                            <input type="number" id="end_lat" class="custom-input" step="0.0001" value="37.6879" placeholder="37.0 to 38.5">
-                        </div>
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="end_lon">Longitude</label>
-                            <input type="number" id="end_lon" class="custom-input" step="0.0001" value="-122.4702" placeholder="-123 to -121">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                    <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Prediction Parameters</h3>
-                    <div class="controls-row">
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="sim_day">Day of Week</label>
-                            <select id="sim_day" class="custom-input">
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday" selected>Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group" style="flex: 0.5;">
-                            <label for="sim_hour">Time of Day (0-23)</label>
-                            <input type="number" id="sim_hour" class="custom-input" min="0" max="23" value="17" placeholder="e.g., 17 for 5 PM">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="controls-row">
-                    <button id="findRouteBtn" class="btn-primary" style="flex: 1;">
-                        <i class="fa-solid fa-microchip"></i> Run AI Simulation
-                    </button>
-                    <button id="resetBtn" class="btn-primary" style="flex: 1; background: rgba(255,255,255,0.1); color: var(--text-muted);">
-                        <i class="fa-solid fa-arrows-rotate"></i> Reset
-                    </button>
+                <div id="selector-map"></div>
+                <div class="map-instructions" id="mapInstructions">
+                    <i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).
                 </div>
             </div>
 
-            <!-- Map Output Card -->
-            <div class="card map-card" style="display: flex; flex-direction: column;">
-                <div id="loader-overlay">
-                    <div class="modern-spinner"></div>
-                    <div class="loader-text">Querying Forecasting Model...</div>
+            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Starting Point</h3>
+                <div class="controls-row">
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="start_lat">Latitude</label>
+                        <input type="number" id="start_lat" class="custom-input" step="0.0001" placeholder="37.0 to 38.5">
+                    </div>
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="start_lon">Longitude</label>
+                        <input type="number" id="start_lon" class="custom-input" step="0.0001" placeholder="-123 to -121">
+                    </div>
                 </div>
-                <iframe id="map-frame" src="about:blank" scrolling="no" style="flex: 1;"></iframe>
+            </div>
+
+            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Destination</h3>
+                <div class="controls-row">
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="end_lat">Latitude</label>
+                        <input type="number" id="end_lat" class="custom-input" step="0.0001" placeholder="37.0 to 38.5">
+                    </div>
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="end_lon">Longitude</label>
+                        <input type="number" id="end_lon" class="custom-input" step="0.0001" placeholder="-123 to -121">
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Prediction Parameters</h3>
+                <div class="controls-row">
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="sim_day">Day of Week</label>
+                        <select id="sim_day" class="custom-input">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday" selected>Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group" style="flex: 0.5;">
+                        <label for="sim_hour">Time of Day (0-23)</label>
+                        <input type="number" id="sim_hour" class="custom-input" min="0" max="23" value="17" placeholder="e.g., 17 for 5 PM">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-row">
+                <button id="findRouteBtn" class="btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-microchip"></i> Run AI Simulation
+                </button>
+                <button id="resetBtn" class="btn-primary" style="flex: 1; background: rgba(255,255,255,0.1); color: var(--text-muted); box-shadow: none;">
+                    <i class="fa-solid fa-arrows-rotate"></i> Reset Coordinates
+                </button>
             </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: RESULTS MAP (HIDDEN INITIALLY)     -->
+        <!-- ========================================== -->
+        <div id="result-view" class="card">
+            <div class="result-header">
+                <h3><i class="fa-solid fa-circle-check"></i> Simulation Complete</h3>
+                <button id="backBtn" class="btn-secondary">
+                    <i class="fa-solid fa-sliders"></i> Modify Parameters
+                </button>
+            </div>
+            <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
+        </div>
+
     </main>
+
+    <!-- Global Fullscreen Loader -->
+    <div id="loader-overlay">
+        <div class="modern-spinner"></div>
+        <div class="loader-text">Querying GCN-GRU Forecasting Model...</div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Calculating optimal A* routing</p>
+    </div>
 
     <!-- JavaScript logic -->
     <script>
-        // ===== MAP SELECTOR INITIALIZATION =====
+        // ===== DOM ELEMENTS FOR VIEW TOGGLING =====
+        const setupView = document.getElementById('setup-view');
+        const resultView = document.getElementById('result-view');
+        const loader = document.getElementById('loader-overlay');
+        const backBtn = document.getElementById('backBtn');
+
+        // Toggle back to setup
+        backBtn.addEventListener('click', () => {
+            resultView.style.display = 'none';
+            setupView.style.display = 'block';
+            // Important: Invalidating map size when un-hiding to prevent Leaflet gray boxes
+            if(selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
+        });
+
+        // ===== DEFAULT SAN FRANCISCO / PeMS04 COORDINATES =====
+        const defaultValues = {
+            start_lat: 37.7749,
+            start_lon: -122.4194,
+            end_lat: 37.6879,
+            end_lon: -122.4702,
+            sim_day: 'Friday',
+            sim_hour: '17'
+        };
+
         let selectorMap = null;
-        let isMapActive = false;
         let selectionMode = null; 
         let startMarker = null;
         let endMarker = null;
-
-        const mapToggleBtn = document.getElementById('mapToggleBtn');
-        const selectorMapDiv = document.getElementById('selector-map');
         const mapInstructions = document.getElementById('mapInstructions');
 
-        mapToggleBtn.addEventListener('click', () => {
-            isMapActive = !isMapActive;
-            if (isMapActive) {
-                selectorMapDiv.classList.add('active');
-                mapInstructions.classList.add('active');
-                mapToggleBtn.classList.add('active');
-                mapToggleBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close Map';
-                if (!selectorMap) { initializeMap(); } else { selectorMap.invalidateSize(); }
-            } else {
-                selectorMapDiv.classList.remove('active');
-                mapInstructions.classList.remove('active');
-                mapToggleBtn.classList.remove('active');
-                mapToggleBtn.innerHTML = '<i class="fa-solid fa-map"></i> Open Map';
-            }
+        window.addEventListener('DOMContentLoaded', () => {
+            Object.keys(defaultValues).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = defaultValues[id];
+            });
+            initializeMap();
         });
 
         function initializeMap() {
-            // Updated to San Francisco Bay Area (PeMS04 Center)
             const sfCenter = [37.7749, -122.4194];
             const bounds = L.latLngBounds(
-                [37.600, -122.550],  // Southwest
-                [37.850, -122.250]   // Northeast
+                [37.600, -122.550], 
+                [37.850, -122.250]   
             );
             
             selectorMap = L.map('selector-map', {
@@ -447,17 +316,7 @@
                 attribution: '© CartoDB'
             }).addTo(selectorMap);
 
-            const startLat = parseFloat(document.getElementById('start_lat').value);
-            const startLon = parseFloat(document.getElementById('start_lon').value);
-            const endLat = parseFloat(document.getElementById('end_lat').value);
-            const endLon = parseFloat(document.getElementById('end_lon').value);
-
-            if (!isNaN(startLat) && !isNaN(startLon)) {
-                startMarker = L.circleMarker([startLat, startLon], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
-            }
-            if (!isNaN(endLat) && !isNaN(endLon)) {
-                endMarker = L.circleMarker([endLat, endLon], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
-            }
+            drawMarkersFromInputs();
 
             selectorMap.on('click', (e) => {
                 const { lat, lng } = e.latlng;
@@ -467,35 +326,46 @@
                     document.getElementById('start_lon').value = lng.toFixed(4);
                     if (startMarker) selectorMap.removeLayer(startMarker);
                     startMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('Start Point').openPopup();
-                    mapInstructions.innerHTML = '<i class="fa-solid fa-circle-check"></i> <strong>Start Point Set!</strong> Now click to select <strong>End Point</strong> (red)';
+                    mapInstructions.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> <strong>Start Point Set!</strong> Now click to select <strong>End Point</strong> (red).';
                 } else if (selectionMode === 'start') {
                     selectionMode = 'end';
                     document.getElementById('end_lat').value = lat.toFixed(4);
                     document.getElementById('end_lon').value = lng.toFixed(4);
                     if (endMarker) selectorMap.removeLayer(endMarker);
                     endMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('End Point').openPopup();
-                    mapInstructions.innerHTML = '<i class="fa-solid fa-check-double"></i> <strong>Both Points Set!</strong> Ready for Simulation';
+                    mapInstructions.innerHTML = '<i class="fa-solid fa-check-double" style="color:#3b82f6;"></i> <strong>Both Points Set!</strong> Ready for Simulation.';
                 }
             });
         }
 
-        const defaultValues = {
-            start_lat: 37.7749,
-            start_lon: -122.4194,
-            end_lat: 37.6879,
-            end_lon: -122.4702,
-            sim_day: 'Friday',
-            sim_hour: '17'
-        };
+        function drawMarkersFromInputs() {
+            const startLat = parseFloat(document.getElementById('start_lat').value);
+            const startLon = parseFloat(document.getElementById('start_lon').value);
+            const endLat = parseFloat(document.getElementById('end_lat').value);
+            const endLon = parseFloat(document.getElementById('end_lon').value);
 
-        window.addEventListener('DOMContentLoaded', () => {
-            Object.keys(defaultValues).forEach(id => document.getElementById(id).value = defaultValues[id]);
-        });
+            if (!isNaN(startLat) && !isNaN(startLon)) {
+                if (startMarker) selectorMap.removeLayer(startMarker);
+                startMarker = L.circleMarker([startLat, startLon], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
+            }
+            if (!isNaN(endLat) && !isNaN(endLon)) {
+                if (endMarker) selectorMap.removeLayer(endMarker);
+                endMarker = L.circleMarker([endLat, endLon], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
+            }
+        }
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-            Object.keys(defaultValues).forEach(id => document.getElementById(id).value = defaultValues[id]);
+            Object.keys(defaultValues).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = defaultValues[id];
+            });
+            selectionMode = null;
+            mapInstructions.innerHTML = '<i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).';
+            drawMarkersFromInputs();
+            selectorMap.setView([37.7749, -122.4194], 11);
         });
 
+        // ===== SUBMIT SIMULATION REQUEST =====
         document.getElementById('findRouteBtn').addEventListener('click', () => {
             const start_lat = parseFloat(document.getElementById('start_lat').value);
             const start_lon = parseFloat(document.getElementById('start_lon').value);
@@ -503,18 +373,19 @@
             const end_lon = parseFloat(document.getElementById('end_lon').value);
             const day = document.getElementById('sim_day').value;
             const hour = parseInt(document.getElementById('sim_hour').value);
-            const loader = document.getElementById('loader-overlay');
 
-            // San Francisco / PeMS04 Bounds Check
             const BOUNDS = { north: 37.850, south: 37.600, east: -122.250, west: -122.550 };
             
             if ([start_lat, end_lat].some(l => l < BOUNDS.south || l > BOUNDS.north) || 
                 [start_lon, end_lon].some(l => l < BOUNDS.west || l > BOUNDS.east)) {
-                alert("Please select coordinates within the San Francisco Bay Area (PeMS04 Zone).");
+                alert("Please select coordinates within the San Francisco Bay Area bounds (PeMS04).");
                 return;
             }
 
+            // 1. Show Loader
             loader.style.display = 'flex';
+            
+            // 2. Fetch Data
             fetch('http://127.0.0.1:5000/get_route', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -523,11 +394,21 @@
             .then(res => res.json())
             .then(data => {
                 loader.style.display = 'none';
-                if (data.error) { alert('Error: ' + data.error); } 
-                else if (data.map_html) { document.getElementById('map-frame').srcdoc = data.map_html; }
+                
+                if (data.error) { 
+                    alert('Error: ' + data.error); 
+                } else if (data.map_html) { 
+                    // 3. Swap Views!
+                    setupView.style.display = 'none';
+                    resultView.style.display = 'flex';
+                    
+                    const iframe = document.getElementById('map-frame');
+                    iframe.srcdoc = data.map_html; 
+                }
             })
-            .catch(() => {
+            .catch((err) => {
                 loader.style.display = 'none';
+                console.error(err);
                 alert('Connection Failed: Ensure your Flask backend (app.py) is running.');
             });
         });
