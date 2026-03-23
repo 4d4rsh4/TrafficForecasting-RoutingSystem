@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spatio-Temporal Traffic Simulation</title>
     
+    <!-- THIS IS THE BROWSER TAB ICON (FAVICON) -->
+    <link rel="icon" type="image/png" href="logo.png">
+    
     <!-- Modern Font and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,7 +19,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <style>
-        /* --- MODERN AI DASHBOARD CSS --- */
         :root {
             --bg-dark: #09090b;
             --bg-card: rgba(39, 39, 42, 0.4);
@@ -51,22 +53,17 @@
         }
 
         .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; margin-bottom: 40px; padding: 0 10px; color: white; text-decoration: none; }
-        .brand i { color: var(--accent); font-size: 24px; }
         .nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
         .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
         .nav-link.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
 
         /* --- MAIN CONTENT --- */
-        .main-content {
-            flex: 1; display: flex; flex-direction: column; padding: 32px; overflow-y: auto; position: relative;
-        }
-
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 32px; overflow-y: auto; position: relative; }
         .header { margin-bottom: 24px; flex-shrink: 0; }
         .header h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
         .header p { color: var(--text-muted); font-size: 15px; }
 
-        /* --- GLASS CARDS --- */
         .card {
             background: var(--bg-card); backdrop-filter: blur(16px);
             border: 1px solid var(--border-color); border-radius: 16px;
@@ -81,8 +78,9 @@
 
         .custom-input {
             width: 100%; height: 48px; box-sizing: border-box; background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color); color: white; padding: 12px 16px;
-            border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s; appearance: none;
+            border: 1px solid var(--border-color); color: white; padding: 0 16px;
+            border-radius: 10px; font-size: 14px; outline: none; transition: all 0.2s; appearance: none;
+            line-height: 46px; /* Perfectly centers text vertically */
         }
         .custom-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
         select.custom-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
@@ -106,10 +104,8 @@
 
         /* --- RESULT VIEW (HIDDEN INITIALLY) --- */
         #result-view {
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            height: calc(100vh - 150px); /* Takes up full remaining screen */
-            padding: 0; overflow: hidden;
+            display: none; flex-direction: column;
+            height: calc(100vh - 150px); padding: 0; overflow: hidden;
         }
         .result-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -146,7 +142,9 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <a href="index.html" class="brand">
-            <i class="fa-solid fa-route"></i> TrafficControl
+            <!-- YOUR LOGO HERE -->
+            <img src="logo.png" alt="Logo" style="height: 28px; width: auto; object-fit: contain;"> 
+            TrafficControl
         </a>
         <nav class="nav-links">
             <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
@@ -159,12 +157,9 @@
     <main class="main-content">
         <div class="header">
             <h1>Traffic Simulation</h1>
-            <p>GCN-GRU Spatio-Temporal Predictive Routing Engine (PeMS04)</p>
+            <p>GCN-GRU Spatio-Temporal Predictive Routing Engine</p>
         </div>
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: SETUP (PARAMETERS)                 -->
-        <!-- ========================================== -->
         <div id="setup-view" class="card">
             
             <div class="map-selector-section">
@@ -182,11 +177,11 @@
                 <div class="controls-row">
                     <div class="input-group" style="flex: 0.5;">
                         <label for="start_lat">Latitude</label>
-                        <input type="number" id="start_lat" class="custom-input" step="0.0001" placeholder="37.0 to 38.5">
+                        <input type="number" id="start_lat" class="custom-input" step="0.0001">
                     </div>
                     <div class="input-group" style="flex: 0.5;">
                         <label for="start_lon">Longitude</label>
-                        <input type="number" id="start_lon" class="custom-input" step="0.0001" placeholder="-123 to -121">
+                        <input type="number" id="start_lon" class="custom-input" step="0.0001">
                     </div>
                 </div>
             </div>
@@ -196,11 +191,11 @@
                 <div class="controls-row">
                     <div class="input-group" style="flex: 0.5;">
                         <label for="end_lat">Latitude</label>
-                        <input type="number" id="end_lat" class="custom-input" step="0.0001" placeholder="37.0 to 38.5">
+                        <input type="number" id="end_lat" class="custom-input" step="0.0001">
                     </div>
                     <div class="input-group" style="flex: 0.5;">
                         <label for="end_lon">Longitude</label>
-                        <input type="number" id="end_lon" class="custom-input" step="0.0001" placeholder="-123 to -121">
+                        <input type="number" id="end_lon" class="custom-input" step="0.0001">
                     </div>
                 </div>
             </div>
@@ -220,7 +215,6 @@
                             <option value="Sunday">Sunday</option>
                         </select>
                     </div>
-                    
                     <div class="input-group" style="flex: 0.5;">
                         <label for="sim_hour">Time of Day (0-23)</label>
                         <input type="number" id="sim_hour" class="custom-input" min="0" max="23" value="17" placeholder="e.g., 17 for 5 PM">
@@ -238,9 +232,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: RESULTS MAP (HIDDEN INITIALLY)     -->
-        <!-- ========================================== -->
+        <!-- RESULTS MAP -->
         <div id="result-view" class="card">
             <div class="result-header">
                 <h3><i class="fa-solid fa-circle-check"></i> Simulation Complete</h3>
@@ -250,46 +242,53 @@
             </div>
             <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
         </div>
-
     </main>
 
     <!-- Global Fullscreen Loader -->
     <div id="loader-overlay">
         <div class="modern-spinner"></div>
         <div class="loader-text">Querying GCN-GRU Forecasting Model...</div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Calculating optimal A* routing</p>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Calculating optimal Dijkstra routing</p>
     </div>
 
     <!-- JavaScript logic -->
     <script>
-        // ===== DOM ELEMENTS FOR VIEW TOGGLING =====
         const setupView = document.getElementById('setup-view');
         const resultView = document.getElementById('result-view');
         const loader = document.getElementById('loader-overlay');
         const backBtn = document.getElementById('backBtn');
 
-        // Toggle back to setup
         backBtn.addEventListener('click', () => {
             resultView.style.display = 'none';
             setupView.style.display = 'block';
-            // Important: Invalidating map size when un-hiding to prevent Leaflet gray boxes
             if(selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
         });
 
-        // ===== DEFAULT SAN FRANCISCO / PeMS04 COORDINATES =====
-        const defaultValues = {
-            start_lat: 37.7749,
-            start_lon: -122.4194,
-            end_lat: 37.6879,
-            end_lon: -122.4702,
-            sim_day: 'Friday',
-            sim_hour: '17'
+        // ===== READ CITY FROM URL =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCity = urlParams.get('city') || 'san_francisco';
+
+        const cityNameDisplay = selectedCity === 'kathmandu' ? 'Kathmandu, Nepal' : 'San Francisco, CA (PeMS04)';
+        document.querySelector('.header p').innerHTML = `GCN-GRU Spatio-Temporal Predictive Routing Engine &nbsp;|&nbsp; <span style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-location-dot"></i> ${cityNameDisplay}</span>`;
+
+        const CITY_DATA = {
+            'san_francisco': {
+                center: [37.7749, -122.4194], zoom: 11,
+                defaults: { start_lat: 37.7749, start_lon: -122.4194, end_lat: 37.6879, end_lon: -122.4702 },
+                bounds: L.latLngBounds([37.600, -122.550], [37.850, -122.250])
+            },
+            'kathmandu': {
+                center: [27.6936, 85.3240], zoom: 13,
+                defaults: { start_lat: 27.6936, start_lon: 85.2806, end_lat: 27.6933, end_lon: 85.3411 },
+                bounds: null 
+            }
         };
 
-        let selectorMap = null;
-        let selectionMode = null; 
-        let startMarker = null;
-        let endMarker = null;
+        const activeCity = CITY_DATA[selectedCity];
+        const defaultValues = { ...activeCity.defaults, sim_day: 'Friday', sim_hour: '17' };
+
+        let selectorMap = null; let selectionMode = null; 
+        let startMarker = null; let endMarker = null;
         const mapInstructions = document.getElementById('mapInstructions');
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -301,36 +300,23 @@
         });
 
         function initializeMap() {
-            const sfCenter = [37.7749, -122.4194];
-            const bounds = L.latLngBounds(
-                [37.600, -122.550], 
-                [37.850, -122.250]   
-            );
-            
             selectorMap = L.map('selector-map', {
-                maxBounds: bounds,
-                maxBoundsViscosity: 1.0 
-            }).setView(sfCenter, 11);
-            
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© CartoDB'
-            }).addTo(selectorMap);
-
+                maxBounds: activeCity.bounds, maxBoundsViscosity: 1.0 
+            }).setView(activeCity.center, activeCity.zoom);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CartoDB' }).addTo(selectorMap);
             drawMarkersFromInputs();
 
             selectorMap.on('click', (e) => {
                 const { lat, lng } = e.latlng;
                 if (selectionMode === null || selectionMode === 'end') {
                     selectionMode = 'start';
-                    document.getElementById('start_lat').value = lat.toFixed(4);
-                    document.getElementById('start_lon').value = lng.toFixed(4);
+                    document.getElementById('start_lat').value = lat.toFixed(4); document.getElementById('start_lon').value = lng.toFixed(4);
                     if (startMarker) selectorMap.removeLayer(startMarker);
                     startMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('Start Point').openPopup();
                     mapInstructions.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> <strong>Start Point Set!</strong> Now click to select <strong>End Point</strong> (red).';
                 } else if (selectionMode === 'start') {
                     selectionMode = 'end';
-                    document.getElementById('end_lat').value = lat.toFixed(4);
-                    document.getElementById('end_lon').value = lng.toFixed(4);
+                    document.getElementById('end_lat').value = lat.toFixed(4); document.getElementById('end_lon').value = lng.toFixed(4);
                     if (endMarker) selectorMap.removeLayer(endMarker);
                     endMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('End Point').openPopup();
                     mapInstructions.innerHTML = '<i class="fa-solid fa-check-double" style="color:#3b82f6;"></i> <strong>Both Points Set!</strong> Ready for Simulation.';
@@ -362,10 +348,9 @@
             selectionMode = null;
             mapInstructions.innerHTML = '<i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).';
             drawMarkersFromInputs();
-            selectorMap.setView([37.7749, -122.4194], 11);
+            selectorMap.setView(activeCity.center, activeCity.zoom);
         });
 
-        // ===== SUBMIT SIMULATION REQUEST =====
         document.getElementById('findRouteBtn').addEventListener('click', () => {
             const start_lat = parseFloat(document.getElementById('start_lat').value);
             const start_lon = parseFloat(document.getElementById('start_lon').value);
@@ -374,36 +359,30 @@
             const day = document.getElementById('sim_day').value;
             const hour = parseInt(document.getElementById('sim_hour').value);
 
-            const BOUNDS = { north: 37.850, south: 37.600, east: -122.250, west: -122.550 };
-            
-            if ([start_lat, end_lat].some(l => l < BOUNDS.south || l > BOUNDS.north) || 
-                [start_lon, end_lon].some(l => l < BOUNDS.west || l > BOUNDS.east)) {
-                alert("Please select coordinates within the San Francisco Bay Area bounds (PeMS04).");
-                return;
+            if(selectedCity === 'kathmandu') {
+                document.querySelector('.loader-text').innerText = "Downloading Topography & Querying Model...";
+                document.querySelector('#loader-overlay p').innerText = "First-time execution may take up to 60 seconds.";
+            } else {
+                document.querySelector('.loader-text').innerText = "Querying GCN-GRU Forecasting Model...";
+                document.querySelector('#loader-overlay p').innerText = "Calculating optimal routing via Dijkstra's Algorithm";
             }
 
-            // 1. Show Loader
             loader.style.display = 'flex';
             
-            // 2. Fetch Data
             fetch('http://127.0.0.1:5000/get_route', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ day, hour, start_lat, start_lon, end_lat, end_lon })
+                body: JSON.stringify({ city: selectedCity, day, hour, start_lat, start_lon, end_lat, end_lon })
             })
             .then(res => res.json())
             .then(data => {
                 loader.style.display = 'none';
-                
                 if (data.error) { 
                     alert('Error: ' + data.error); 
                 } else if (data.map_html) { 
-                    // 3. Swap Views!
                     setupView.style.display = 'none';
                     resultView.style.display = 'flex';
-                    
-                    const iframe = document.getElementById('map-frame');
-                    iframe.srcdoc = data.map_html; 
+                    document.getElementById('map-frame').srcdoc = data.map_html; 
                 }
             })
             .catch((err) => {
