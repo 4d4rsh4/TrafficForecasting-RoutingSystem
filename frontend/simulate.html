@@ -1,396 +1,769 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spatio-Temporal Traffic Simulation</title>
-    
+
     <!-- THIS IS THE BROWSER TAB ICON (FAVICON) -->
-    <link rel="icon" type="image/png" href="logo.png">
-    
+    <link rel="icon" type="image/png" href="logo.png" />
+
     <!-- Modern Font and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <!-- Leaflet Map Library -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    
+
     <style>
-        :root {
-            --bg-dark: #09090b;
-            --bg-card: rgba(39, 39, 42, 0.4);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-muted: #a1a1aa;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --accent-glow: rgba(59, 130, 246, 0.5);
+      :root {
+        --bg-dark: #09090b;
+        --bg-card: rgba(39, 39, 42, 0.4);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-main: #f8fafc;
+        --text-muted: #a1a1aa;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --accent-glow: rgba(59, 130, 246, 0.5);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-image:
+          radial-gradient(
+            circle at 15% 50%,
+            rgba(59, 130, 246, 0.08),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(16, 185, 129, 0.05),
+            transparent 25%
+          );
+      }
+
+      /* --- SIDEBAR --- */
+      .sidebar {
+        width: 260px;
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        padding: 24px 16px;
+        z-index: 10;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 40px;
+        padding: 0 10px;
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+      }
+      .nav-link.active {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+      }
+
+      /* --- MAIN CONTENT --- */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 32px;
+        overflow-y: auto;
+        position: relative;
+      }
+      .header {
+        margin-bottom: 24px;
+        flex-shrink: 0;
+      }
+      .header h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+      .header p {
+        color: var(--text-muted);
+        font-size: 15px;
+      }
+
+      .card {
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+      }
+
+      /* --- CONTROLS SECTION --- */
+      .controls-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-width: 200px;
+      }
+      .input-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .custom-input {
+        width: 100%;
+        height: 48px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+        appearance: none;
+        line-height: 46px; /* Perfectly centers text vertically */
+      }
+      .custom-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+      select.custom-input {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 0 15px var(--accent-glow);
+        height: 48px;
+        box-sizing: border-box;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 0 20px var(--accent-glow);
+      }
+      .btn-primary:active {
+        transform: translateY(1px);
+      }
+
+      /* --- MAP SELECTOR --- */
+      .map-selector-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .map-selector-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .map-selector-header h3 {
+        color: white;
+        font-size: 16px;
+      }
+      #selector-map {
+        width: 100%;
+        height: 350px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 12px;
+        display: block;
+      }
+      .map-instructions {
+        font-size: 13px;
+        color: var(--text-muted);
+        display: block;
+      }
+      .map-instructions i {
+        margin-right: 6px;
+        color: var(--accent);
+      }
+
+      /* --- RESULT VIEW (HIDDEN INITIALLY) --- */
+      #result-view {
+        display: none;
+        flex-direction: column;
+        height: calc(100vh - 150px);
+        padding: 0;
+        overflow: hidden;
+      }
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 24px;
+        background: rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .result-header h3 {
+        color: white;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .result-header h3 i {
+        color: #10b981;
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: white;
+      }
+      #map-frame {
+        width: 100%;
+        flex: 1;
+        border: none;
+        border-radius: 0 0 16px 16px;
+      }
+
+      /* --- GLOBAL LOADER OVERLAY --- */
+      #loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(9, 9, 11, 0.85);
+        backdrop-filter: blur(10px);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .modern-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      .loader-text {
+        color: white;
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+        100% {
+          transform: rotate(360deg);
         }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 260px;
-            background: rgba(9, 9, 11, 0.8);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; padding: 24px 16px; z-index: 10;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-
-        .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; margin-bottom: 40px; padding: 0 10px; color: white; text-decoration: none; }
-        .nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .nav-link.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
-
-        /* --- MAIN CONTENT --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; padding: 32px; overflow-y: auto; position: relative; }
-        .header { margin-bottom: 24px; flex-shrink: 0; }
-        .header h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
-        .header p { color: var(--text-muted); font-size: 15px; }
-
-        .card {
-            background: var(--bg-card); backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color); border-radius: 16px;
-            padding: 24px; box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
-            flex-shrink: 0;
+        50% {
+          opacity: 0.5;
         }
-
-        /* --- CONTROLS SECTION --- */
-        .controls-row { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; }
-        .input-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .custom-input {
-            width: 100%; height: 48px; box-sizing: border-box; background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color); color: white; padding: 0 16px;
-            border-radius: 10px; font-size: 14px; outline: none; transition: all 0.2s; appearance: none;
-            line-height: 46px; /* Perfectly centers text vertically */
-        }
-        .custom-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-        select.custom-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-
-        .btn-primary {
-            background: var(--accent); color: white; border: none; padding: 0 28px;
-            border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 0 15px var(--accent-glow); height: 48px; box-sizing: border-box;
-        }
-        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 0 20px var(--accent-glow); }
-        .btn-primary:active { transform: translateY(1px); }
-
-        /* --- MAP SELECTOR --- */
-        .map-selector-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-        .map-selector-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .map-selector-header h3 { color: white; font-size: 16px; }
-        #selector-map { width: 100%; height: 350px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 12px; display: block; }
-        .map-instructions { font-size: 13px; color: var(--text-muted); display: block; }
-        .map-instructions i { margin-right: 6px; color: var(--accent); }
-
-        /* --- RESULT VIEW (HIDDEN INITIALLY) --- */
-        #result-view {
-            display: none; flex-direction: column;
-            height: calc(100vh - 150px); padding: 0; overflow: hidden;
-        }
-        .result-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 24px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color);
-        }
-        .result-header h3 { color: white; font-size: 18px; display: flex; align-items: center; gap: 10px;}
-        .result-header h3 i { color: #10b981; }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1); color: var(--text-main); border: 1px solid var(--border-color);
-            padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: white; }
-        #map-frame { width: 100%; flex: 1; border: none; border-radius: 0 0 16px 16px; }
-
-        /* --- GLOBAL LOADER OVERLAY --- */
-        #loader-overlay {
-            position: fixed; inset: 0; background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(10px);
-            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
-        }
-        .modern-spinner {
-            width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: var(--accent); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
-        }
-        .loader-text { color: white; font-size: 18px; font-weight: 500; letter-spacing: 0.5px; animation: pulse 2s infinite; }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <a href="index.html" class="brand">
-            <!-- YOUR LOGO HERE -->
-            <img src="logo.png" alt="Logo" style="height: 28px; width: auto; object-fit: contain;"> 
-            TrafficControl
-        </a>
-        <nav class="nav-links">
-            <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="#" class="nav-link active"><i class="fa-solid fa-chart-network"></i> Simulation Model</a>
-            <a href="index.html#about" class="nav-link"><i class="fa-solid fa-circle-info"></i> About System</a>
-        </nav>
+      <a href="index.html" class="brand">
+        <!-- YOUR LOGO HERE -->
+        <img
+          src="logo.png"
+          alt="Logo"
+          style="height: 28px; width: auto; object-fit: contain"
+        />
+        TrafficControl
+      </a>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link"
+          ><i class="fa-solid fa-house"></i> Home</a
+        >
+        <a href="#" class="nav-link active"
+          ><i class="fa-solid fa-chart-network"></i> Simulation Model</a
+        >
+        <a href="index.html#about" class="nav-link"
+          ><i class="fa-solid fa-circle-info"></i> About System</a
+        >
+      </nav>
     </aside>
 
     <!-- Main Content Area -->
     <main class="main-content">
-        <div class="header">
-            <h1>Traffic Simulation</h1>
-            <p>GCN-GRU Spatio-Temporal Predictive Routing Engine</p>
+      <div class="header">
+        <h1>Traffic Simulation</h1>
+        <p>GCN-GRU Spatio-Temporal Predictive Routing Engine</p>
+      </div>
+
+      <div id="setup-view" class="card">
+        <div class="map-selector-section">
+          <div class="map-selector-header">
+            <h3><i class="fa-solid fa-map-pin"></i> Select Points on Map</h3>
+          </div>
+          <div id="selector-map"></div>
+          <div class="map-instructions" id="mapInstructions">
+            <i class="fa-solid fa-info-circle"></i> Click on the map to select
+            <strong>Start Point</strong> (green), then
+            <strong>End Point</strong> (red).
+          </div>
         </div>
 
-        <div id="setup-view" class="card">
-            
-            <div class="map-selector-section">
-                <div class="map-selector-header">
-                    <h3><i class="fa-solid fa-map-pin"></i> Select Points on Map</h3>
-                </div>
-                <div id="selector-map"></div>
-                <div class="map-instructions" id="mapInstructions">
-                    <i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).
-                </div>
+        <div
+          style="
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+          "
+        >
+          <h3 style="color: white; font-size: 16px; margin-bottom: 15px">
+            Starting Point
+          </h3>
+          <div class="controls-row">
+            <div class="input-group" style="flex: 0.5">
+              <label for="start_lat">Latitude</label>
+              <input
+                type="number"
+                id="start_lat"
+                class="custom-input"
+                step="0.0001"
+              />
             </div>
-
-            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Starting Point</h3>
-                <div class="controls-row">
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="start_lat">Latitude</label>
-                        <input type="number" id="start_lat" class="custom-input" step="0.0001">
-                    </div>
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="start_lon">Longitude</label>
-                        <input type="number" id="start_lon" class="custom-input" step="0.0001">
-                    </div>
-                </div>
+            <div class="input-group" style="flex: 0.5">
+              <label for="start_lon">Longitude</label>
+              <input
+                type="number"
+                id="start_lon"
+                class="custom-input"
+                step="0.0001"
+              />
             </div>
-
-            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Destination</h3>
-                <div class="controls-row">
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="end_lat">Latitude</label>
-                        <input type="number" id="end_lat" class="custom-input" step="0.0001">
-                    </div>
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="end_lon">Longitude</label>
-                        <input type="number" id="end_lon" class="custom-input" step="0.0001">
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                <h3 style="color: white; font-size: 16px; margin-bottom: 15px;">Prediction Parameters</h3>
-                <div class="controls-row">
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="sim_day">Day of Week</label>
-                        <select id="sim_day" class="custom-input">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday" selected>Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
-                    </div>
-                    <div class="input-group" style="flex: 0.5;">
-                        <label for="sim_hour">Time of Day (0-23)</label>
-                        <input type="number" id="sim_hour" class="custom-input" min="0" max="23" value="17" placeholder="e.g., 17 for 5 PM">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="controls-row">
-                <button id="findRouteBtn" class="btn-primary" style="flex: 1;">
-                    <i class="fa-solid fa-microchip"></i> Run AI Simulation
-                </button>
-                <button id="resetBtn" class="btn-primary" style="flex: 1; background: rgba(255,255,255,0.1); color: var(--text-muted); box-shadow: none;">
-                    <i class="fa-solid fa-arrows-rotate"></i> Reset Coordinates
-                </button>
-            </div>
+          </div>
         </div>
 
-        <!-- RESULTS MAP -->
-        <div id="result-view" class="card">
-            <div class="result-header">
-                <h3><i class="fa-solid fa-circle-check"></i> Simulation Complete</h3>
-                <button id="backBtn" class="btn-secondary">
-                    <i class="fa-solid fa-sliders"></i> Modify Parameters
-                </button>
+        <div
+          style="
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+          "
+        >
+          <h3 style="color: white; font-size: 16px; margin-bottom: 15px">
+            Destination
+          </h3>
+          <div class="controls-row">
+            <div class="input-group" style="flex: 0.5">
+              <label for="end_lat">Latitude</label>
+              <input
+                type="number"
+                id="end_lat"
+                class="custom-input"
+                step="0.0001"
+              />
             </div>
-            <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
+            <div class="input-group" style="flex: 0.5">
+              <label for="end_lon">Longitude</label>
+              <input
+                type="number"
+                id="end_lon"
+                class="custom-input"
+                step="0.0001"
+              />
+            </div>
+          </div>
         </div>
+
+        <div
+          style="
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+          "
+        >
+          <h3 style="color: white; font-size: 16px; margin-bottom: 15px">
+            Prediction Parameters
+          </h3>
+          <div class="controls-row">
+            <div class="input-group" style="flex: 0.5">
+              <label for="sim_day">Day of Week</label>
+              <select id="sim_day" class="custom-input">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday" selected>Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div class="input-group" style="flex: 0.5">
+              <label for="sim_hour">Time of Day (0-23)</label>
+              <input
+                type="number"
+                id="sim_hour"
+                class="custom-input"
+                min="0"
+                max="23"
+                value="17"
+                placeholder="e.g., 17 for 5 PM"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <button id="findRouteBtn" class="btn-primary" style="flex: 1">
+            <i class="fa-solid fa-microchip"></i> Run AI Simulation
+          </button>
+          <button
+            id="resetBtn"
+            class="btn-primary"
+            style="
+              flex: 1;
+              background: rgba(255, 255, 255, 0.1);
+              color: var(--text-muted);
+              box-shadow: none;
+            "
+          >
+            <i class="fa-solid fa-arrows-rotate"></i> Reset Coordinates
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULTS MAP -->
+      <div id="result-view" class="card">
+        <div class="result-header">
+          <h3><i class="fa-solid fa-circle-check"></i> Simulation Complete</h3>
+          <button id="backBtn" class="btn-secondary">
+            <i class="fa-solid fa-sliders"></i> Modify Parameters
+          </button>
+        </div>
+        <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
+      </div>
     </main>
 
     <!-- Global Fullscreen Loader -->
     <div id="loader-overlay">
-        <div class="modern-spinner"></div>
-        <div class="loader-text">Querying GCN-GRU Forecasting Model...</div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Calculating optimal Dijkstra routing</p>
+      <div class="modern-spinner"></div>
+      <div class="loader-text">Querying GCN-GRU Forecasting Model...</div>
+      <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px">
+        Calculating optimal Dijkstra routing
+      </p>
     </div>
 
     <!-- JavaScript logic -->
     <script>
-        const setupView = document.getElementById('setup-view');
-        const resultView = document.getElementById('result-view');
-        const loader = document.getElementById('loader-overlay');
-        const backBtn = document.getElementById('backBtn');
+      const setupView = document.getElementById("setup-view");
+      const resultView = document.getElementById("result-view");
+      const loader = document.getElementById("loader-overlay");
+      const backBtn = document.getElementById("backBtn");
 
-        backBtn.addEventListener('click', () => {
-            resultView.style.display = 'none';
-            setupView.style.display = 'block';
-            if(selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
+      backBtn.addEventListener("click", () => {
+        resultView.style.display = "none";
+        setupView.style.display = "block";
+        if (selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
+      });
+
+      // ===== READ CITY FROM URL =====
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedCity = urlParams.get("city") || "san_francisco";
+
+      const cityNameDisplay =
+        selectedCity === "kathmandu"
+          ? "Kathmandu, Nepal"
+          : "San Francisco, CA (PeMS04)";
+      document.querySelector(".header p").innerHTML =
+        `GCN-GRU Spatio-Temporal Predictive Routing Engine &nbsp;|&nbsp; <span style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-location-dot"></i> ${cityNameDisplay}</span>`;
+
+      const CITY_DATA = {
+        san_francisco: {
+          center: [37.7749, -122.4194],
+          zoom: 11,
+          defaults: {
+            start_lat: 37.7749,
+            start_lon: -122.4194,
+            end_lat: 37.6879,
+            end_lon: -122.4702,
+          },
+          bounds: L.latLngBounds([37.6, -122.55], [37.85, -122.25]),
+        },
+        kathmandu: {
+          center: [27.6936, 85.324],
+          zoom: 13,
+          defaults: {
+            start_lat: 27.6936,
+            start_lon: 85.2806,
+            end_lat: 27.6933,
+            end_lon: 85.3411,
+          },
+          bounds: null,
+        },
+      };
+
+      const activeCity = CITY_DATA[selectedCity];
+      const defaultValues = {
+        ...activeCity.defaults,
+        sim_day: "Friday",
+        sim_hour: "17",
+      };
+
+      let selectorMap = null;
+      let selectionMode = null;
+      let startMarker = null;
+      let endMarker = null;
+      const mapInstructions = document.getElementById("mapInstructions");
+
+      window.addEventListener("DOMContentLoaded", () => {
+        Object.keys(defaultValues).forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = defaultValues[id];
         });
+        initializeMap();
+      });
 
-        // ===== READ CITY FROM URL =====
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedCity = urlParams.get('city') || 'san_francisco';
+      function initializeMap() {
+        selectorMap = L.map("selector-map", {
+          maxBounds: activeCity.bounds,
+          maxBoundsViscosity: 1.0,
+        }).setView(activeCity.center, activeCity.zoom);
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+          { attribution: "© CartoDB" },
+        ).addTo(selectorMap);
+        drawMarkersFromInputs();
 
-        const cityNameDisplay = selectedCity === 'kathmandu' ? 'Kathmandu, Nepal' : 'San Francisco, CA (PeMS04)';
-        document.querySelector('.header p').innerHTML = `GCN-GRU Spatio-Temporal Predictive Routing Engine &nbsp;|&nbsp; <span style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-location-dot"></i> ${cityNameDisplay}</span>`;
-
-        const CITY_DATA = {
-            'san_francisco': {
-                center: [37.7749, -122.4194], zoom: 11,
-                defaults: { start_lat: 37.7749, start_lon: -122.4194, end_lat: 37.6879, end_lon: -122.4702 },
-                bounds: L.latLngBounds([37.600, -122.550], [37.850, -122.250])
-            },
-            'kathmandu': {
-                center: [27.6936, 85.3240], zoom: 13,
-                defaults: { start_lat: 27.6936, start_lon: 85.2806, end_lat: 27.6933, end_lon: 85.3411 },
-                bounds: null 
-            }
-        };
-
-        const activeCity = CITY_DATA[selectedCity];
-        const defaultValues = { ...activeCity.defaults, sim_day: 'Friday', sim_hour: '17' };
-
-        let selectorMap = null; let selectionMode = null; 
-        let startMarker = null; let endMarker = null;
-        const mapInstructions = document.getElementById('mapInstructions');
-
-        window.addEventListener('DOMContentLoaded', () => {
-            Object.keys(defaultValues).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = defaultValues[id];
-            });
-            initializeMap();
+        selectorMap.on("click", (e) => {
+          const { lat, lng } = e.latlng;
+          if (selectionMode === null || selectionMode === "end") {
+            selectionMode = "start";
+            document.getElementById("start_lat").value = lat.toFixed(4);
+            document.getElementById("start_lon").value = lng.toFixed(4);
+            if (startMarker) selectorMap.removeLayer(startMarker);
+            startMarker = L.circleMarker([lat, lng], {
+              radius: 8,
+              fillColor: "#10b981",
+              color: "#059669",
+              weight: 2,
+              fillOpacity: 0.8,
+            })
+              .addTo(selectorMap)
+              .bindPopup("Start Point")
+              .openPopup();
+            mapInstructions.innerHTML =
+              '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> <strong>Start Point Set!</strong> Now click to select <strong>End Point</strong> (red).';
+          } else if (selectionMode === "start") {
+            selectionMode = "end";
+            document.getElementById("end_lat").value = lat.toFixed(4);
+            document.getElementById("end_lon").value = lng.toFixed(4);
+            if (endMarker) selectorMap.removeLayer(endMarker);
+            endMarker = L.circleMarker([lat, lng], {
+              radius: 8,
+              fillColor: "#ef4444",
+              color: "#dc2626",
+              weight: 2,
+              fillOpacity: 0.8,
+            })
+              .addTo(selectorMap)
+              .bindPopup("End Point")
+              .openPopup();
+            mapInstructions.innerHTML =
+              '<i class="fa-solid fa-check-double" style="color:#3b82f6;"></i> <strong>Both Points Set!</strong> Ready for Simulation.';
+          }
         });
+      }
 
-        function initializeMap() {
-            selectorMap = L.map('selector-map', {
-                maxBounds: activeCity.bounds, maxBoundsViscosity: 1.0 
-            }).setView(activeCity.center, activeCity.zoom);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CartoDB' }).addTo(selectorMap);
-            drawMarkersFromInputs();
+      function drawMarkersFromInputs() {
+        const startLat = parseFloat(document.getElementById("start_lat").value);
+        const startLon = parseFloat(document.getElementById("start_lon").value);
+        const endLat = parseFloat(document.getElementById("end_lat").value);
+        const endLon = parseFloat(document.getElementById("end_lon").value);
 
-            selectorMap.on('click', (e) => {
-                const { lat, lng } = e.latlng;
-                if (selectionMode === null || selectionMode === 'end') {
-                    selectionMode = 'start';
-                    document.getElementById('start_lat').value = lat.toFixed(4); document.getElementById('start_lon').value = lng.toFixed(4);
-                    if (startMarker) selectorMap.removeLayer(startMarker);
-                    startMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('Start Point').openPopup();
-                    mapInstructions.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> <strong>Start Point Set!</strong> Now click to select <strong>End Point</strong> (red).';
-                } else if (selectionMode === 'start') {
-                    selectionMode = 'end';
-                    document.getElementById('end_lat').value = lat.toFixed(4); document.getElementById('end_lon').value = lng.toFixed(4);
-                    if (endMarker) selectorMap.removeLayer(endMarker);
-                    endMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap).bindPopup('End Point').openPopup();
-                    mapInstructions.innerHTML = '<i class="fa-solid fa-check-double" style="color:#3b82f6;"></i> <strong>Both Points Set!</strong> Ready for Simulation.';
-                }
-            });
+        if (!isNaN(startLat) && !isNaN(startLon)) {
+          if (startMarker) selectorMap.removeLayer(startMarker);
+          startMarker = L.circleMarker([startLat, startLon], {
+            radius: 8,
+            fillColor: "#10b981",
+            color: "#059669",
+            weight: 2,
+            fillOpacity: 0.8,
+          }).addTo(selectorMap);
+        }
+        if (!isNaN(endLat) && !isNaN(endLon)) {
+          if (endMarker) selectorMap.removeLayer(endMarker);
+          endMarker = L.circleMarker([endLat, endLon], {
+            radius: 8,
+            fillColor: "#ef4444",
+            color: "#dc2626",
+            weight: 2,
+            fillOpacity: 0.8,
+          }).addTo(selectorMap);
+        }
+      }
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        Object.keys(defaultValues).forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = defaultValues[id];
+        });
+        selectionMode = null;
+        mapInstructions.innerHTML =
+          '<i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).';
+        drawMarkersFromInputs();
+        selectorMap.setView(activeCity.center, activeCity.zoom);
+      });
+
+      document.getElementById("findRouteBtn").addEventListener("click", () => {
+        const start_lat = parseFloat(
+          document.getElementById("start_lat").value,
+        );
+        const start_lon = parseFloat(
+          document.getElementById("start_lon").value,
+        );
+        const end_lat = parseFloat(document.getElementById("end_lat").value);
+        const end_lon = parseFloat(document.getElementById("end_lon").value);
+        const day = document.getElementById("sim_day").value;
+        const hour = parseInt(document.getElementById("sim_hour").value);
+
+        if (selectedCity === "kathmandu") {
+          document.querySelector(".loader-text").innerText =
+            "Downloading Topography & Querying Model...";
+          document.querySelector("#loader-overlay p").innerText =
+            "First-time execution may take up to 60 seconds.";
+        } else {
+          document.querySelector(".loader-text").innerText =
+            "Querying GCN-GRU Forecasting Model...";
+          document.querySelector("#loader-overlay p").innerText =
+            "Calculating optimal routing via Dijkstra's Algorithm";
         }
 
-        function drawMarkersFromInputs() {
-            const startLat = parseFloat(document.getElementById('start_lat').value);
-            const startLon = parseFloat(document.getElementById('start_lon').value);
-            const endLat = parseFloat(document.getElementById('end_lat').value);
-            const endLon = parseFloat(document.getElementById('end_lon').value);
+        loader.style.display = "flex";
 
-            if (!isNaN(startLat) && !isNaN(startLon)) {
-                if (startMarker) selectorMap.removeLayer(startMarker);
-                startMarker = L.circleMarker([startLat, startLon], { radius: 8, fillColor: '#10b981', color: '#059669', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
+        fetch("http://127.0.0.1:5000/get_route", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            city: selectedCity,
+            day,
+            hour,
+            start_lat,
+            start_lon,
+            end_lat,
+            end_lon,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            loader.style.display = "none";
+            if (data.error) {
+              alert("Error: " + data.error);
+            } else if (data.map_html) {
+              setupView.style.display = "none";
+              resultView.style.display = "flex";
+              document.getElementById("map-frame").srcdoc = data.map_html;
             }
-            if (!isNaN(endLat) && !isNaN(endLon)) {
-                if (endMarker) selectorMap.removeLayer(endMarker);
-                endMarker = L.circleMarker([endLat, endLon], { radius: 8, fillColor: '#ef4444', color: '#dc2626', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
-            }
-        }
-
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            Object.keys(defaultValues).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = defaultValues[id];
-            });
-            selectionMode = null;
-            mapInstructions.innerHTML = '<i class="fa-solid fa-info-circle"></i> Click on the map to select <strong>Start Point</strong> (green), then <strong>End Point</strong> (red).';
-            drawMarkersFromInputs();
-            selectorMap.setView(activeCity.center, activeCity.zoom);
-        });
-
-        document.getElementById('findRouteBtn').addEventListener('click', () => {
-            const start_lat = parseFloat(document.getElementById('start_lat').value);
-            const start_lon = parseFloat(document.getElementById('start_lon').value);
-            const end_lat = parseFloat(document.getElementById('end_lat').value);
-            const end_lon = parseFloat(document.getElementById('end_lon').value);
-            const day = document.getElementById('sim_day').value;
-            const hour = parseInt(document.getElementById('sim_hour').value);
-
-            if(selectedCity === 'kathmandu') {
-                document.querySelector('.loader-text').innerText = "Downloading Topography & Querying Model...";
-                document.querySelector('#loader-overlay p').innerText = "First-time execution may take up to 60 seconds.";
-            } else {
-                document.querySelector('.loader-text').innerText = "Querying GCN-GRU Forecasting Model...";
-                document.querySelector('#loader-overlay p').innerText = "Calculating optimal routing via Dijkstra's Algorithm";
-            }
-
-            loader.style.display = 'flex';
-            
-            fetch('http://127.0.0.1:5000/get_route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ city: selectedCity, day, hour, start_lat, start_lon, end_lat, end_lon })
-            })
-            .then(res => res.json())
-            .then(data => {
-                loader.style.display = 'none';
-                if (data.error) { 
-                    alert('Error: ' + data.error); 
-                } else if (data.map_html) { 
-                    setupView.style.display = 'none';
-                    resultView.style.display = 'flex';
-                    document.getElementById('map-frame').srcdoc = data.map_html; 
-                }
-            })
-            .catch((err) => {
-                loader.style.display = 'none';
-                console.error(err);
-                alert('Connection Failed: Ensure your Flask backend (app.py) is running.');
-            });
-        });
+          })
+          .catch((err) => {
+            loader.style.display = "none";
+            console.error(err);
+            alert(
+              "Connection Failed: Ensure your Flask backend (app.py) is running.",
+            );
+          });
+      });
     </script>
-</body>
+  </body>
 </html>
