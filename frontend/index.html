@@ -571,34 +571,16 @@
         <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 30px">
           Choose a geographic region to run the predictive routing simulation.
         </p>
-        <div style="display: flex; gap: 20px; justify-content: center">
-          <button
-            class="city-btn"
-            onclick="window.location.href = 'simulate.html?city=san_francisco'"
-          >
-            <i
-              class="fa-solid fa-bridge-water fa-2x"
-              style="color: #3b82f6; margin-bottom: 10px"
-            ></i>
-            <h3 style="color: white; font-size: 16px">San Francisco</h3>
-            <p style="color: #a1a1aa; font-size: 12px; margin-top: 5px">
-              Primary Dataset (PeMS04)
-            </p>
-          </button>
-          <button
-            class="city-btn"
-            onclick="window.location.href = 'simulate.html?city=kathmandu'"
-          >
-            <i
-              class="fa-solid fa-mountain-sun fa-2x"
-              style="color: #10b981; margin-bottom: 10px"
-            ></i>
-            <h3 style="color: white; font-size: 16px">Kathmandu</h3>
-            <p style="color: #a1a1aa; font-size: 12px; margin-top: 5px">
-              Local Topology Transfer
-            </p>
-          </button>
-        </div>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+                <button class="city-btn" onclick="window.location.href='simulate.html?city=san_francisco'">
+                    <h3 style="color: white; font-size: 16px;">San Francisco</h3>
+                    <p style="color: #a1a1aa; font-size: 12px; margin-top:5px;">Primary Dataset (PeMS04)</p>
+                </button>
+                <button class="city-btn" onclick="window.location.href='simulate.html?city=kathmandu'">
+                    <h3 style="color: white; font-size: 16px;">Kathmandu</h3>
+                    <p style="color: #a1a1aa; font-size: 12px; margin-top:5px;">Local Topology Transfer</p>
+                </button>
+            </div>
         <button
           onclick="document.getElementById('cityModal').style.display = 'none'"
           style="

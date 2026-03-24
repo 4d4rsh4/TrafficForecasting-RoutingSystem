@@ -359,10 +359,8 @@
     </style>
   </head>
   <body>
-    <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <a href="index.html" class="brand">
-        <!-- YOUR LOGO HERE -->
         <img
           src="logo.png"
           alt="Logo"
@@ -383,7 +381,6 @@
       </nav>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="main-content">
       <div class="header">
         <h1>Traffic Simulation</h1>
@@ -524,7 +521,6 @@
         </div>
       </div>
 
-      <!-- RESULTS MAP -->
       <div id="result-view" class="card">
         <div class="result-header">
           <h3><i class="fa-solid fa-circle-check"></i> Simulation Complete</h3>
@@ -536,7 +532,6 @@
       </div>
     </main>
 
-    <!-- Global Fullscreen Loader -->
     <div id="loader-overlay">
       <div class="modern-spinner"></div>
       <div class="loader-text">Querying GCN-GRU Forecasting Model...</div>
@@ -545,7 +540,6 @@
       </p>
     </div>
 
-    <!-- JavaScript logic -->
     <script>
       const setupView = document.getElementById("setup-view");
       const resultView = document.getElementById("result-view");
@@ -558,7 +552,6 @@
         if (selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
       });
 
-      // ===== READ CITY FROM URL =====
       const urlParams = new URLSearchParams(window.location.search);
       const selectedCity = urlParams.get("city") || "san_francisco";
 
@@ -569,31 +562,19 @@
       document.querySelector(".header p").innerHTML =
         `GCN-GRU Spatio-Temporal Predictive Routing Engine &nbsp;|&nbsp; <span style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-location-dot"></i> ${cityNameDisplay}</span>`;
 
-      const CITY_DATA = {
-        san_francisco: {
-          center: [37.7749, -122.4194],
-          zoom: 11,
-          defaults: {
-            start_lat: 37.7749,
-            start_lon: -122.4194,
-            end_lat: 37.6879,
-            end_lon: -122.4702,
-          },
-          bounds: L.latLngBounds([37.6, -122.55], [37.85, -122.25]),
-        },
-        kathmandu: {
-          center: [27.6936, 85.324],
-          zoom: 13,
-          defaults: {
-            start_lat: 27.6936,
-            start_lon: 85.2806,
-            end_lat: 27.6933,
-            end_lon: 85.3411,
-          },
-          bounds: null,
-        },
-      };
-
+       const CITY_DATA = {
+            'san_francisco': {
+                center: [37.75, -122.44], zoom: 12,
+                // UPDATED DEFAULTS: Your requested coordinates
+                defaults: { start_lat: 37.7082, start_lon: -122.4858, end_lat: 37.8060, end_lon: -122.4055 },
+            },
+            'kathmandu': {
+                center: [27.68, 85.32], zoom: 13,
+                // UPDATED DEFAULTS: Kalanki to Tinkune
+                defaults: { start_lat: 27.6936, start_lon: 85.2806, end_lat: 27.6845, end_lon: 85.3468 }, 
+            }
+        };
+        
       const activeCity = CITY_DATA[selectedCity];
       const defaultValues = {
         ...activeCity.defaults,
