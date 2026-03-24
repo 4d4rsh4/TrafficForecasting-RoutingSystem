@@ -40,44 +40,47 @@ except Exception as e:
     adj = torch.eye(N)
 
 
-class GraphConvLayer(nn.Module):
+class GraphConv(nn.Module):
 
-    def __init__(self, in_feat, out_feat):
+    def __init__(self, in_f, out_f):
         super().__init__()
-        self.weight = nn.Parameter(torch.randn(in_feat, out_feat))
-        self.bias = nn.Parameter(torch.zeros(out_feat))
-        nn.init.xavier_uniform_(self.weight)
+        self.w = nn.Parameter(torch.randn(in_f, out_f))
+        nn.init.xavier_uniform_(self.w)
 
     def forward(self, x, adj):
-        return torch.matmul(torch.matmul(adj, x), self.weight) + self.bias
+        x = torch.matmul(x, self.w) 
+        return torch.matmul(adj, x)
 
 
 class TemporalGCNGRU(nn.Module):
 
-    def __init__(self, num_sensors, gcn_hid, gru_hid, seq_in, seq_out, adj):
+    def __init__(self, in_f, g_hid, r_hid, out_len, adj):
         super().__init__()
-        self.num_sensors = num_sensors
-        self.seq_out = seq_out
-        self.seq_in = seq_in
         self.adj = adj
-        self.gcn1 = GraphConvLayer(3, gcn_hid) 
-        self.gcn2 = GraphConvLayer(gcn_hid, gcn_hid)
-        self.gru = nn.GRU(gcn_hid, gru_hid, num_layers=1, batch_first=True)
-        self.fc = nn.Linear(gru_hid, self.seq_out)
+        self.gcn = GraphConv(in_f, g_hid)
+        self.gru = nn.GRU(g_hid, r_hid, batch_first=True)
+        self.fc = nn.Linear(r_hid, out_len)
         self.relu = nn.ReLU()
 
     def forward(self, x):
-        B, L, N, _ = x.shape
-        gcn_out = [self.gcn2(self.relu(self.gcn1(x[:, t,:,:], self.adj)), self.adj) for t in range(L)]
-        gcn_seq = torch.stack(gcn_out, dim=1)
-        _, h = self.gru(gcn_seq.view(B * N, L, -1))
-        out = self.fc(h.squeeze(0)) 
-        return out.view(B, N, self.seq_out).permute(0, 2, 1) 
+        B, L, N, F = x.shape
+        x = x.reshape(B * L, N, F) 
+        x = self.relu(self.gcn(x, self.adj))
+        
+        x = x.view(B, L, N, -1).transpose(1, 2).reshape(B * N, L, -1)
+        
+        _, h = self.gru(x)
+        out = self.fc(h.squeeze(0))
+
+        return out.view(B, N, -1).transpose(1, 2) 
 
 
-model = TemporalGCNGRU(num_sensors=N, gcn_hid=32, gru_hid=64, seq_in=SEQ_IN, seq_out=SEQ_OUT, adj=adj.to(DEVICE))
-if os.path.exists('traffic_model_temporal.pth'):
-    model.load_state_dict(torch.load('traffic_model_temporal.pth', map_location=DEVICE))
+model = TemporalGCNGRU(in_f=3, g_hid=32, r_hid=64, out_len=SEQ_OUT, adj=adj.to(DEVICE))
+
+model_path = 'traffic_model_temporal.pth'
+if os.path.exists(model_path):
+    model.load_state_dict(torch.load(model_path, map_location=DEVICE))
+    print("Advanced Temporal GCN-GRU Model Loaded.")
 model.eval()
 
 CACHED_GRAPHS = {}
@@ -133,7 +136,7 @@ def get_overview():
 @app.route('/get_route', methods=['POST'])
 def get_route():
     try:
-        start_time=time.time()
+        start_time = time.time()
         payload = request.json
         city_id = payload.get('city', 'san_francisco')
         start_lat, start_lon = float(payload['start_lat']), float(payload['start_lon'])
@@ -198,7 +201,7 @@ def get_route():
             dphi = math.radians(lat2 - lat1)
             dlambda = math.radians(lon2 - lon1)
             
-            a = math.sin(dphi / 2.0)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0)**2
+            a = math.sin(dphi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
             return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
         dist_to_start = calculate_dist(start_lat, start_lon, n_start, G)
@@ -243,6 +246,7 @@ def get_route():
     except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
