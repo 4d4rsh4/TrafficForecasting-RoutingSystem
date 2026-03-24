@@ -18,7 +18,6 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 app = Flask(__name__)
 CORS(app)
 
-# --- DATA & MODEL INITIALIZATION ---
 try:
     raw = np.load('data/pems04.npz')['data']
     traffic = raw[:,:, 0]
@@ -34,9 +33,9 @@ try:
     days_sin = np.sin(2 * np.pi * time_index.dayofweek.values / 7.0).astype(np.float32)
     scaler = StandardScaler()
     traffic_scaled = scaler.fit_transform(traffic.reshape(-1, 1)).reshape(traffic.shape)
-    print(f"✅ Data Loaded: {N} sensors on {DEVICE}.")
+    print(f"Data Loaded: {N} sensors on {DEVICE}.")
 except Exception as e:
-    print(f"❌ Data Error: {e}")
+    print(f"Data Error: {e}")
     T, N = 1000, 307
     adj = torch.eye(N)
 
@@ -76,51 +75,43 @@ model = TemporalGCNGRU(in_f=3, g_hid=32, r_hid=64, out_len=SEQ_OUT, adj=adj).to(
 model_path = 'traffic_model_temporal.pth'
 if os.path.exists(model_path):
     model.load_state_dict(torch.load(model_path, map_location=DEVICE), strict=False)
-    print("✅ Advanced Model Loaded.")
+    print("Advanced Model Loaded.")
 model.eval()
 
 
-# --- ENDPOINTS ---
 @app.route('/get_overview', methods=['POST', 'GET'])
 def get_overview():
     try:
-        # Get AI prediction
         found_idx = int(T * 0.8) + 100 
         input_list = [np.stack([traffic_scaled[t], np.full(N, hours_sin[t]), np.full(N, days_sin[t])], axis=1) for t in range(found_idx, found_idx + SEQ_IN)]
         input_tensor = torch.FloatTensor(np.array(input_list)).unsqueeze(0).to(DEVICE)
         with torch.no_grad(): preds = model(input_tensor)
         predicted_flows = scaler.inverse_transform(preds[0, 0,:].cpu().numpy().reshape(-1, 1)).flatten()
         
-        # --- NEW LOGIC: DOWNLOAD ONLY MAJOR HIGHWAYS ---
         file_name = "sf_highway_map.graphml"
         if os.path.exists(file_name):
             G = ox.load_graphml(file_name)
         else:
             print("Downloading HIGHWAY-ONLY map for San Francisco...")
-            # This filter tells OSMnx to ONLY get these road types
             custom_filter = '["highway"~"motorway|motorway_link|trunk|trunk_link|primary"]'
             G = ox.graph_from_place("San Francisco, California", custom_filter=custom_filter)
             ox.save_graphml(G, filepath=file_name)
 
         m = folium.Map(tiles='CartoDB dark_matter')
         
-        # Paint the highways with AI predictions
         edge_index = 0
         for u, v, _, data in G.edges(keys=True, data=True):
             flow = predicted_flows[edge_index % N]
             color = '#10b981' if flow < 200 else '#f59e0b' if flow < 400 else '#ef4444'
             
-            # Slightly thicker lines to match your reference image
             weight = 5
             
             coords = [(lat, lon) for lon, lat in list(data['geometry'].coords)] if 'geometry' in data else [(G.nodes[u]['y'], G.nodes[u]['x']), (G.nodes[v]['y'], G.nodes[v]['x'])]
             folium.PolyLine(coords, color=color, weight=weight, opacity=0.9).add_to(m)
             edge_index += 1
 
-        # Zoom in on the specific highway network
         m.fit_bounds([[37.7, -122.5], [37.81, -122.38]]) 
         
-        # Add Legends & Overlays
         legend = '''<div style="position: absolute; top: 90px; left: 20px; width: 140px; background-color: rgba(9, 9, 11, 0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; z-index: 999999; font-size: 12px; color: white; padding: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><b style="font-size:11px; color:#a1a1aa; display:block; text-transform:uppercase; margin-bottom:8px;">Traffic Flow</b><div style="margin-bottom:6px;"><i style="background:#10b981; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Free</div><div style="margin-bottom:6px;"><i style="background:#f59e0b; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Moderate</div><div><i style="background:#ef4444; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Heavy</div></div>'''
         live_state = '''<div style="position: absolute; top: 20px; right: 20px; width: 250px; background-color: rgba(9, 9, 11, 0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; z-index: 999999; font-size: 12px; color: #a1a1aa; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><b style="font-size:14px; color:white; display:block; margin-bottom:5px;">Live Traffic State</b>This map shows current traffic conditions in the San Francisco Bay Area using our AI model. Green indicates smooth traffic; red indicates congestion.</div>'''
         
@@ -169,12 +160,10 @@ def get_route():
         avg_flow = np.mean(predicted_flows)
         trend = max(0.5, avg_flow / 200.0) 
 
-        # We no longer use a 'city_id' check here, applying the same logic to all dynamic maps
         for u, v, _, data in G.edges(keys=True, data=True):
             hw = data.get('highway', [''])[0] if isinstance(data.get('highway'), list) else data.get('highway', '')
             is_h = hw in ['motorway', 'trunk', 'primary', 'motorway_link']
             
-            # Apply Heuristic Topology Transfer based on model's time trend
             if is_h: base_flow = 800
             elif hw in ['secondary', 'tertiary']: base_flow = 300
             else: base_flow = 100
@@ -217,7 +206,7 @@ def get_route():
 
         leg = f'''<div style="position: absolute; top: 20px; right: 20px; width: 240px; background-color: rgba(9, 9, 11, 0.95); color: white; border: 1px solid #06b6d4; z-index: 9999; padding: 15px; border-radius: 10px; font-family: sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.8);"><h4 style="margin: 0 0 10px 0; color: #06b6d4; font-size:14px;">Results</h4><div style="font-size: 12px; line-height: 1.6;"><b>AI Optimized:</b> {a_t/60:.1f} mins | {a_d/1000:.1f} km<br><b>Shortest Path:</b> {s_t/60:.1f} mins | {s_d/1000:.1f} km<br><b style="color: #22c55e;">Time Saved: {max(0, (s_t - a_t)/60.0):.1f} mins</b></div><hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0;"><b style="font-size:11px; color:#a1a1aa; display:block; text-transform:uppercase; margin-bottom:6px;">Traffic</b><div style="margin-bottom:4px;"><i style="background:#22c55e; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Free</div><div style="margin-bottom:4px;"><i style="background:#f59e0b; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Moderate</div><div><i style="background:#ef4444; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;"></i> Heavy</div></div>'''
         m.get_root().html.add_child(folium.Element(leg))
-        print(f"✅ Route Calculation Time: {time.time() - start_time:.4f}s")
+        print(f"Route Calculation Time: {time.time() - start_time:.4f}s")
         return jsonify({'map_html': m._repr_html_()})
     except Exception as e:
         traceback.print_exc()
