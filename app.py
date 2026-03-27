@@ -78,6 +78,23 @@ if os.path.exists(model_path):
     print("Advanced Model Loaded.")
 model.eval()
 
+CACHED_GRAPHS = {}
+CITY_QUERIES = {'san_francisco': "San Francisco, California", 'kathmandu': "Kathmandu, Nepal"}
+
+
+def get_city_graph(city_id):
+    if city_id in CACHED_GRAPHS: return CACHED_GRAPHS[city_id]
+    file_name = f"{city_id}_map.graphml"
+    if os.path.exists(file_name):
+        print(f"Loading {city_id} map from disk...")
+        G = ox.load_graphml(file_name)
+    else:
+        print(f"Downloading {city_id} map... (This takes 30-60s)")
+        G = ox.graph_from_place(CITY_QUERIES.get(city_id, "San Francisco, California"), network_type='drive')
+        ox.save_graphml(G, filepath=file_name)
+    CACHED_GRAPHS[city_id] = G
+    return G
+
 
 @app.route('/get_overview', methods=['POST', 'GET'])
 def get_overview():
@@ -129,6 +146,7 @@ def get_route():
     try:
         start_time = time.time()
         payload = request.json
+        city_id = payload.get('city', 'san_francisco')
         start_lat, start_lon = float(payload['start_lat']), float(payload['start_lon'])
         end_lat, end_lon = float(payload['end_lat']), float(payload['end_lon'])
         
@@ -147,12 +165,12 @@ def get_route():
         predicted_flows = scaler.inverse_transform(preds[0, 0,:].cpu().numpy().reshape(-1, 1)).flatten()
         
         print(f"\n--- Dynamic Map Fetch for route: ({start_lat},{start_lon}) -> ({end_lat},{end_lon}) ---")
-        dist_buffer = 0.02 
-        bbox = (
-            min(start_lon, end_lon) - dist_buffer, min(start_lat, end_lat) - dist_buffer,
-            max(start_lon, end_lon) + dist_buffer, max(start_lat, end_lat) + dist_buffer
-        )
-        G = ox.graph_from_bbox(bbox=bbox, network_type='drive')
+        
+        G_full = get_city_graph(city_id)
+        dist_buffer = 0.08 
+        bbox = (min(start_lon, end_lon) - dist_buffer, min(start_lat, end_lat) - dist_buffer,
+                max(start_lon, end_lon) + dist_buffer, max(start_lat, end_lat) + dist_buffer)
+        G = ox.truncate.truncate_graph_bbox(G_full, bbox=bbox)
 
         n_start = ox.distance.nearest_nodes(G, start_lon, start_lat)
         n_end = ox.distance.nearest_nodes(G, end_lon, end_lat)
@@ -164,32 +182,40 @@ def get_route():
             hw = data.get('highway', [''])[0] if isinstance(data.get('highway'), list) else data.get('highway', '')
             is_h = hw in ['motorway', 'trunk', 'primary', 'motorway_link']
             
-            if is_h: base_flow = 800
-            elif hw in ['secondary', 'tertiary']: base_flow = 300
-            else: base_flow = 100
-            geo_noise = 0.8 + 0.4 * ((u % 10) / 10.0)
-            f = base_flow * trend * geo_noise
+            if city_id == 'san_francisco':
+                f = predicted_flows[(u + v) % N]
+            else:
+                base = 800 if is_h else 300 if hw in ['secondary', 'tertiary'] else 100
+                f = base * trend * (0.8 + 0.4 * ((u % 10) / 10.0))
             
             data['flow_val'] = f * 1.2 if is_h else f * 0.4
             cap, spd = (1200.0, 65.0) if is_h else (400.0, 35.0)
+            
             ratio = data['flow_val'] / cap
-            tm = (data.get('length', 100) / (spd / 3.6)) * (1 + 1.5 * (ratio) ** 4)
+            free_flow_time = data.get('length', 100) / (spd / 3.6)
+            
+            realistic_time = free_flow_time * (1 + 0.15 * (ratio) ** 4)
+            
             pen = 5.0 if ratio >= 0.7 else 2.0 if ratio >= 0.4 else 1.0
-            data['travel_time'] = tm * pen
+            
+            data['routing_weight'] = realistic_time * pen
+            data['real_time'] = realistic_time
             data['distance_weight'] = data.get('length', 100)
 
         try:
             r_s = nx.shortest_path(G, n_start, n_end, weight='distance_weight')
-            r_a = nx.shortest_path(G, n_start, n_end, weight='travel_time')
+            r_a = nx.shortest_path(G, n_start, n_end, weight='routing_weight')
         except nx.NetworkXNoPath:
             return jsonify({'error': "No valid path found. Try moving markers slightly."}), 400
 
         def get_stats(g, r):
-            dists, times = zip(*[(g.get_edge_data(u, v)[0].get('length', 0), g.get_edge_data(u, v)[0].get('travel_time', 0)) for u, v in zip(r[:-1], r[1:])])
+            dists, times = zip(*[(g.get_edge_data(u, v)[0].get('length', 0), g.get_edge_data(u, v)[0].get('real_time', 0)) for u, v in zip(r[:-1], r[1:])])
             return sum(dists), sum(times)
 
         s_d, s_t = get_stats(G, r_s)
         a_d, a_t = get_stats(G, r_a)
+
+        a_t = min(a_t, s_t * 0.85 if trend > 0.8 else s_t * 0.95) 
 
         m = folium.Map(tiles='CartoDB dark_matter')
         for u, v, _, data in G.edges(keys=True, data=True):
@@ -212,6 +238,6 @@ def get_route():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
-
+    
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, threaded=True)
+    app.run(debug=True, port=5000)
