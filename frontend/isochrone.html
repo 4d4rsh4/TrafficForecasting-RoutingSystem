@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emergency Isochrone Map</title>
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <style>
+      /* COLOR FIXED TO MATCH MAIN SITE */
+      :root {
+        --bg-dark: #09090b;
+        --bg-card: rgba(39, 39, 42, 0.4);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-main: #f8fafc;
+        --text-muted: #a1a1aa;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --accent-glow: rgba(59, 130, 246, 0.5);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-image:
+          radial-gradient(
+            circle at 15% 50%,
+            rgba(59, 130, 246, 0.08),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(16, 185, 129, 0.05),
+            transparent 25%
+          );
+      }
+
+      .sidebar {
+        width: 260px;
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        padding: 24px 16px;
+        z-index: 10;
+        .sub-link {
+            padding-left: 50px; /* This creates the indentation! */
+            font-size: 13px;
+        }
+        .sub-link i {
+            margin-left: -20px; /* Pulls the icon back into alignment */
+        }
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 40px;
+        padding: 0 10px;
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+      }
+      .nav-link.active {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 32px 32px 60px 32px;
+        overflow-y: auto;
+        position: relative;
+      }
+      .header {
+        margin-bottom: 24px;
+        flex-shrink: 0;
+      }
+      .header h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+      .header p {
+        color: var(--text-muted);
+        font-size: 15px;
+      }
+      .card {
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+      }
+
+      .controls-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-width: 200px;
+      }
+      .input-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .custom-input {
+        width: 100%;
+        height: 48px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+        appearance: none;
+        line-height: 46px;
+      }
+      .custom-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+      select.custom-input {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 0 15px var(--accent-glow);
+        height: 48px;
+        box-sizing: border-box;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 0 20px var(--accent-glow);
+      }
+
+      #selector-map {
+        width: 100%;
+        height: 300px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 12px;
+        display: block;
+      }
+      .map-instructions {
+        font-size: 13px;
+        color: var(--text-muted);
+        display: block;
+      }
+      .map-instructions i {
+        margin-right: 6px;
+        color: var(--accent);
+      }
+
+      #result-view {
+        display: none;
+        flex-direction: column;
+        height: calc(100vh - 150px);
+        padding: 0;
+        overflow: hidden;
+      }
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 24px;
+        background: rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      #map-frame {
+        width: 100%;
+        flex: 1;
+        border: none;
+        border-radius: 0 0 16px 16px;
+      }
+
+      #loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(9, 9, 11, 0.85);
+        backdrop-filter: blur(10px);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .modern-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Toggle Switch Styles */
+      .toggle-container {
+        display: flex;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .toggle-btn {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-weight: 600;
+        transition: 0.3s;
+        font-size: 14px;
+      }
+      .toggle-btn.active {
+        background: var(--accent);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="brand">
+            <img src="logo.png" alt="Logo" style="height: 28px; width: auto; object-fit: contain;"> 
+            TrafficControl
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link" id="nav-home">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+            
+            <!-- Indented Sub-menu Links -->
+            <a href="simulate.html" class="nav-link sub-link" id="nav-simulate">
+                <i class="fa-solid fa-map-location-dot"></i> Routing Simulation
+            </a>
+            <a href="isochrone.html" class="nav-link sub-link" id="nav-isochrone">
+                <i class="fa-solid fa-truck-medical"></i> Emergency Isochrones
+            </a>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
+
+            <a href="index.html#about" class="nav-link" id="nav-about">
+                <i class="fa-solid fa-circle-info"></i> About System
+            </a>
+            <a href="index.html#contact" class="nav-link" id="nav-contact">
+                <i class="fa-solid fa-users-gear"></i> Development Team
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="header">
+        <h1>Emergency Reachability Map</h1>
+        <p>
+          Dynamic Isochrone Generation for Kathmandu City based on AI Traffic
+          Forecasts
+        </p>
+      </div>
+
+      <div id="setup-view" class="card">
+        <div class="toggle-container">
+          <div
+            class="toggle-btn active"
+            id="modeCustom"
+            onclick="setMode('custom')"
+          >
+            <i class="fa-solid fa-map-pin"></i> Custom Dispatch Pin
+          </div>
+          <div
+            class="toggle-btn"
+            id="modeHospitals"
+            onclick="setMode('hospitals')"
+          >
+            <i class="fa-solid fa-hospital"></i> Major City Hospitals
+          </div>
+        </div>
+
+        <div id="custom-pin-section">
+          <div id="selector-map"></div>
+          <div class="map-instructions" id="mapInstructions">
+            <i class="fa-solid fa-info-circle"></i> Click to drop an emergency
+            dispatch pin.
+          </div>
+          <input type="hidden" id="start_lat" value="27.7172" />
+          <input type="hidden" id="start_lon" value="85.3240" />
+        </div>
+
+        <div
+          style="
+            margin-top: 25px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+          "
+        >
+          <div class="controls-row">
+            <div class="input-group">
+              <label for="time_limit">Reachability Limit (Minutes)</label>
+              <select id="time_limit" class="custom-input">
+                <option value="5">5 Minutes</option>
+                <option value="10" selected>10 Minutes</option>
+                <option value="15">15 Minutes</option>
+                <option value="20">20 Minutes</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="sim_day">Prediction Day</label>
+              <select id="sim_day" class="custom-input">
+                <option value="Monday">Monday</option>
+                <option value="Friday" selected>Friday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="sim_hour">Time of Day (0-23)</label>
+              <input
+                type="number"
+                id="sim_hour"
+                class="custom-input"
+                min="0"
+                max="23"
+                value="17"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-row" style="margin-top: 20px">
+          <button id="findRouteBtn" class="btn-primary" style="flex: 1">
+            <i class="fa-solid fa-satellite-dish"></i> Generate Isochrone Map
+          </button>
+        </div>
+      </div>
+
+      <div id="result-view" class="card">
+        <div class="result-header">
+          <h3 style="color: white; font-size: 18px">
+            <i class="fa-solid fa-circle-check" style="color: #3b82f6"></i>
+            Isochrone Generated
+          </h3>
+          <button id="backBtn" class="btn-secondary">
+            <i class="fa-solid fa-sliders"></i> Modify Parameters
+          </button>
+        </div>
+        <iframe id="map-frame" src="about:blank" scrolling="no"></iframe>
+      </div>
+    </main>
+
+    <div id="loader-overlay">
+      <div class="modern-spinner"></div>
+      <div
+        style="
+          color: white;
+          font-size: 18px;
+          font-weight: 500;
+          margin-bottom: 10px;
+        "
+      >
+        Computing Network Reachability...
+      </div>
+      <p style="color: var(--text-muted); font-size: 13px">
+        Applying AI temporal weights to NetworkX Ego Graph
+      </p>
+    </div>
+
+    <script>
+      let mode = "custom";
+      let selectorMap = null;
+      let pinMarker = null;
+
+      function setMode(newMode) {
+        mode = newMode;
+        document.getElementById("modeCustom").classList.remove("active");
+        document.getElementById("modeHospitals").classList.remove("active");
+
+        if (mode === "custom") {
+          document.getElementById("modeCustom").classList.add("active");
+          document.getElementById("custom-pin-section").style.display = "block";
+          if (selectorMap) setTimeout(() => selectorMap.invalidateSize(), 100);
+        } else {
+          document.getElementById("modeHospitals").classList.add("active");
+          document.getElementById("custom-pin-section").style.display = "none";
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const ktmCenter = [27.7172, 85.324];
+        selectorMap = L.map("selector-map").setView(ktmCenter, 12);
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+          { attribution: "© CartoDB" },
+        ).addTo(selectorMap);
+
+        pinMarker = L.circleMarker(ktmCenter, {
+          radius: 8,
+          fillColor: "#3b82f6",
+          color: "#2563eb",
+          weight: 2,
+          fillOpacity: 0.8,
+        }).addTo(selectorMap);
+
+        selectorMap.on("click", (e) => {
+          const { lat, lng } = e.latlng;
+          document.getElementById("start_lat").value = lat;
+          document.getElementById("start_lon").value = lng;
+          if (pinMarker) selectorMap.removeLayer(pinMarker);
+          pinMarker = L.circleMarker([lat, lng], {
+            radius: 8,
+            fillColor: "#3b82f6",
+            color: "#2563eb",
+            weight: 2,
+            fillOpacity: 0.8,
+          }).addTo(selectorMap);
+          document.getElementById("mapInstructions").innerHTML =
+            '<i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> Dispatch Location Set.';
+        });
+      });
+
+      document.getElementById("backBtn").addEventListener("click", () => {
+        document.getElementById("result-view").style.display = "none";
+        document.getElementById("setup-view").style.display = "block";
+        if (mode === "custom")
+          setTimeout(() => selectorMap.invalidateSize(), 100);
+      });
+
+      document.getElementById("findRouteBtn").addEventListener("click", () => {
+        const start_lat = document.getElementById("start_lat").value;
+        const start_lon = document.getElementById("start_lon").value;
+        const time_limit = document.getElementById("time_limit").value;
+        const day = document.getElementById("sim_day").value;
+        const hour = parseInt(document.getElementById("sim_hour").value);
+
+        document.getElementById("loader-overlay").style.display = "flex";
+
+        fetch("http://127.0.0.1:5000/get_isochrone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode,
+            time_limit,
+            day,
+            hour,
+            start_lat,
+            start_lon,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("loader-overlay").style.display = "none";
+            if (data.error) {
+              alert("Error: " + data.error);
+            } else if (data.map_html) {
+              document.getElementById("setup-view").style.display = "none";
+              document.getElementById("result-view").style.display = "flex";
+              document.getElementById("map-frame").srcdoc = data.map_html;
+            }
+          })
+          .catch((err) => {
+            document.getElementById("loader-overlay").style.display = "none";
+            alert("Connection Failed. Ensure app.py is running.");
+          });
+      });
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname.split("/").pop();
+            
+            if (path === 'index.html' || path === '') {
+                document.getElementById('nav-home')?.classList.add('active');
+            } else if (path === 'simulate.html') {
+                document.getElementById('nav-simulate')?.classList.add('active');
+                document.getElementById('nav-home')?.classList.remove('active');
+            } else if (path === 'isochrone.html') {
+                document.getElementById('nav-isochrone')?.classList.add('active');
+                document.getElementById('nav-home')?.classList.remove('active');
+            }
+        });
+    </script>
+  </body>
+</html>

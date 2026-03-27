@@ -57,6 +57,13 @@
         flex-direction: column;
         padding: 24px 16px;
         z-index: 100;
+        .sub-link {
+          padding-left: 50px; /* This creates the indentation! */
+          font-size: 13px;
+        }
+        .sub-link i {
+          margin-left: -20px; /* Pulls the icon back into alignment */
+        }
       }
       .brand {
         display: flex;
@@ -367,8 +374,9 @@
     </style>
   </head>
   <body>
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <a href="#" class="brand">
+      <a href="index.html" class="brand">
         <img
           src="logo.png"
           alt="Logo"
@@ -377,15 +385,26 @@
         TrafficControl
       </a>
       <nav class="nav-links">
-        <a href="#home" class="nav-link active"
-          ><i class="fa-solid fa-house"></i> Home</a
-        >
-        <a href="#about" class="nav-link"
-          ><i class="fa-solid fa-circle-info"></i> About System</a
-        >
-        <a href="#contact" class="nav-link"
-          ><i class="fa-solid fa-address-book"></i> Contact Us</a
-        >
+        <a href="index.html" class="nav-link" id="nav-home">
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+
+        <!-- Indented Sub-menu Links -->
+        <a href="simulate.html" class="nav-link sub-link" id="nav-simulate">
+          <i class="fa-solid fa-map-location-dot"></i> Routing Simulation
+        </a>
+        <a href="isochrone.html" class="nav-link sub-link" id="nav-isochrone">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Isochrones
+        </a>
+
+        <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 10px 0" />
+
+        <a href="index.html#about" class="nav-link" id="nav-about">
+          <i class="fa-solid fa-circle-info"></i> About System
+        </a>
+        <a href="index.html#contact" class="nav-link" id="nav-contact">
+          <i class="fa-solid fa-users-gear"></i> Development Team
+        </a>
       </nav>
     </aside>
 
@@ -423,6 +442,7 @@
         </div>
       </section>
 
+      <!-- SECTION 2: ABOUT SYSTEM -->
       <section id="about">
         <div class="full-card card">
           <div class="card-header">
@@ -435,7 +455,7 @@
                 Urban traffic congestion has become a critical challenge,
                 resulting in massive economic losses, environmental degradation,
                 and increased commute times. Traditional traffic management
-                systems are inherently <strong>reactive</strong> addressing
+                systems are inherently <strong>reactive</strong>—addressing
                 bottlenecks only after they have already formed.
               </p>
               <p>
@@ -449,7 +469,12 @@
               </p>
             </div>
 
-            <div class="tech-grid">
+            <!-- UPDATED 2x2 GRID -->
+            <div
+              class="tech-grid"
+              style="grid-template-columns: repeat(2, 1fr)"
+            >
+              <!-- CARD 1: GCN -->
               <div class="tech-card">
                 <i class="fa-solid fa-diagram-project"></i>
                 <h4>Graph Convolutional Networks</h4>
@@ -460,6 +485,7 @@
                 </p>
               </div>
 
+              <!-- CARD 2: GRU -->
               <div class="tech-card">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <h4>Gated Recurrent Units (GRU)</h4>
@@ -470,23 +496,34 @@
                 </p>
               </div>
 
+              <!-- CARD 3: DIJKSTRA ROUTING -->
               <div class="tech-card">
                 <i class="fa-solid fa-route"></i>
                 <h4>Dynamic Dijkstra Routing</h4>
                 <p>
-                  Unlike standard GPS that calculates routes based purely on
-                  static distance, our system dynamically modifies the edge
+                  Unlike standard GPS, our system dynamically modifies the edge
                   weights of the road graph using the model's future time
-                  predictions. Dijkstra's Algorithm then computes the
-                  mathematically optimal alternate route to bypass impending
-                  congestion.
+                  predictions. Dijkstra's Algorithm then computes the optimal
+                  alternate route to bypass impending congestion.
+                </p>
+              </div>
+
+              <!-- NEW CARD 4: ISOCHRONE MAPPING -->
+              <div class="tech-card">
+                <i class="fa-solid fa-person-running"></i>
+                <h4>Dynamic Isochrone Analysis</h4>
+                <p>
+                  The system generates Isochrone maps to visualize emergency
+                  service reachability. By calculating a radial Dijkstra search
+                  (Ego Graph) with AI-predicted traffic penalties, it proves how
+                  congestion directly impacts response times and city-wide
+                  coverage.
                 </p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
       <section id="contact">
         <div class="full-card card">
           <div class="card-header">
@@ -571,16 +608,26 @@
         <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 30px">
           Choose a geographic region to run the predictive routing simulation.
         </p>
-        <div style="display: flex; gap: 20px; justify-content: center;">
-                <button class="city-btn" onclick="window.location.href='simulate.html?city=san_francisco'">
-                    <h3 style="color: white; font-size: 16px;">San Francisco</h3>
-                    <p style="color: #a1a1aa; font-size: 12px; margin-top:5px;">Primary Dataset (PeMS04)</p>
-                </button>
-                <button class="city-btn" onclick="window.location.href='simulate.html?city=kathmandu'">
-                    <h3 style="color: white; font-size: 16px;">Kathmandu</h3>
-                    <p style="color: #a1a1aa; font-size: 12px; margin-top:5px;">Local Topology Transfer</p>
-                </button>
-            </div>
+        <div style="display: flex; gap: 20px; justify-content: center">
+          <button
+            class="city-btn"
+            onclick="window.location.href = 'simulate.html?city=san_francisco'"
+          >
+            <h3 style="color: white; font-size: 16px">San Francisco</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-top: 5px">
+              Primary Dataset (PeMS04)
+            </p>
+          </button>
+          <button
+            class="city-btn"
+            onclick="window.location.href = 'simulate.html?city=kathmandu'"
+          >
+            <h3 style="color: white; font-size: 16px">Kathmandu</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-top: 5px">
+              Local Topology Transfer
+            </p>
+          </button>
+        </div>
         <button
           onclick="document.getElementById('cityModal').style.display = 'none'"
           style="
@@ -644,6 +691,20 @@
           if (link.getAttribute("href").includes(current))
             link.classList.add("active");
         });
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const path = window.location.pathname.split("/").pop();
+
+        if (path === "index.html" || path === "") {
+          document.getElementById("nav-home")?.classList.add("active");
+        } else if (path === "simulate.html") {
+          document.getElementById("nav-simulate")?.classList.add("active");
+          document.getElementById("nav-home")?.classList.remove("active");
+        } else if (path === "isochrone.html") {
+          document.getElementById("nav-isochrone")?.classList.add("active");
+          document.getElementById("nav-home")?.classList.remove("active");
+        }
       });
     </script>
   </body>

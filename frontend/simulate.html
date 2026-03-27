@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spatio-Temporal Traffic Simulation</title>
 
-    <!-- THIS IS THE BROWSER TAB ICON (FAVICON) -->
+    <!-- FIX 1: THIS ADDS THE LOGO TO THE BROWSER TAB -->
     <link rel="icon" type="image/png" href="logo.png" />
 
     <!-- Modern Font and Icons -->
@@ -75,6 +75,13 @@
         flex-direction: column;
         padding: 24px 16px;
         z-index: 10;
+        .sub-link {
+          padding-left: 50px; /* This creates the indentation! */
+          font-size: 13px;
+        }
+        .sub-link i {
+          margin-left: -20px; /* Pulls the icon back into alignment */
+        }
       }
 
       .brand {
@@ -359,6 +366,7 @@
     </style>
   </head>
   <body>
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <a href="index.html" class="brand">
         <img
@@ -369,15 +377,26 @@
         TrafficControl
       </a>
       <nav class="nav-links">
-        <a href="index.html" class="nav-link"
-          ><i class="fa-solid fa-house"></i> Home</a
-        >
-        <a href="#" class="nav-link active"
-          ><i class="fa-solid fa-chart-network"></i> Simulation Model</a
-        >
-        <a href="index.html#about" class="nav-link"
-          ><i class="fa-solid fa-circle-info"></i> About System</a
-        >
+        <a href="index.html" class="nav-link" id="nav-home">
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+
+        <!-- Indented Sub-menu Links -->
+        <a href="simulate.html" class="nav-link sub-link" id="nav-simulate">
+          <i class="fa-solid fa-map-location-dot"></i> Routing Simulation
+        </a>
+        <a href="isochrone.html" class="nav-link sub-link" id="nav-isochrone">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Isochrones
+        </a>
+
+        <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 10px 0" />
+
+        <a href="index.html#about" class="nav-link" id="nav-about">
+          <i class="fa-solid fa-circle-info"></i> About System
+        </a>
+        <a href="index.html#contact" class="nav-link" id="nav-contact">
+          <i class="fa-solid fa-users-gear"></i> Development Team
+        </a>
       </nav>
     </aside>
 
@@ -562,19 +581,31 @@
       document.querySelector(".header p").innerHTML =
         `GCN-GRU Spatio-Temporal Predictive Routing Engine &nbsp;|&nbsp; <span style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-location-dot"></i> ${cityNameDisplay}</span>`;
 
-       const CITY_DATA = {
-            'san_francisco': {
-                center: [37.75, -122.44], zoom: 12,
-                // UPDATED DEFAULTS: Your requested coordinates
-                defaults: { start_lat: 37.7082, start_lon: -122.4858, end_lat: 37.8060, end_lon: -122.4055 },
-            },
-            'kathmandu': {
-                center: [27.68, 85.32], zoom: 13,
-                // UPDATED DEFAULTS: Kalanki to Tinkune
-                defaults: { start_lat: 27.6936, start_lon: 85.2806, end_lat: 27.6845, end_lon: 85.3468 }, 
-            }
-        };
-        
+      const CITY_DATA = {
+        san_francisco: {
+          center: [37.75, -122.44],
+          zoom: 12,
+          // UPDATED DEFAULTS: Your requested coordinates
+          defaults: {
+            start_lat: 37.7082,
+            start_lon: -122.4858,
+            end_lat: 37.806,
+            end_lon: -122.4055,
+          },
+        },
+        kathmandu: {
+          center: [27.68, 85.32],
+          zoom: 13,
+          // UPDATED DEFAULTS: Kalanki to Tinkune
+          defaults: {
+            start_lat: 27.6936,
+            start_lon: 85.2806,
+            end_lat: 27.6845,
+            end_lon: 85.3468,
+          },
+        },
+      };
+
       const activeCity = CITY_DATA[selectedCity];
       const defaultValues = {
         ...activeCity.defaults,
@@ -744,6 +775,19 @@
               "Connection Failed: Ensure your Flask backend (app.py) is running.",
             );
           });
+      });
+      document.addEventListener("DOMContentLoaded", () => {
+        const path = window.location.pathname.split("/").pop();
+
+        if (path === "index.html" || path === "") {
+          document.getElementById("nav-home")?.classList.add("active");
+        } else if (path === "simulate.html") {
+          document.getElementById("nav-simulate")?.classList.add("active");
+          document.getElementById("nav-home")?.classList.remove("active");
+        } else if (path === "isochrone.html") {
+          document.getElementById("nav-isochrone")?.classList.add("active");
+          document.getElementById("nav-home")?.classList.remove("active");
+        }
       });
     </script>
   </body>
