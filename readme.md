@@ -1,63 +1,62 @@
-# 🚦 Spatio-Temporal Traffic Forecasting & Predictive Routing [CT707]
+🚦 Spatio-Temporal Traffic Forecasting & Predictive Routing (CT707)
 
-This repository contains the source code for the Major Project **"Spatio-Temporal Traffic Forecasting and Congestion Mapping using GCN-GRU,"** submitted to the Department of Computer Engineering at Kathmandu Engineering College, Tribhuvan University.
+This repository presents the implementation of the major project:
 
-The system utilizes a hybrid Deep Learning architecture (**GCN-GRU**) trained on the **PeMS-04 dataset** to predict future traffic flow. These predictions are fed into a dynamic routing engine that calculates optimal, time-efficient routes by anticipating and avoiding predicted congestion.
+“Spatio-Temporal Traffic Forecasting and Congestion Mapping using GCN-GRU”
+submitted to the Department of Computer Engineering, Kathmandu Engineering College, Tribhuvan University.
 
-The entire system is served via a **Flask backend** to a modern, interactive web dashboard.
+The system integrates deep learning-based traffic prediction with a dynamic routing engine to generate time-efficient navigation paths by anticipating future congestion.
 
----
+A hybrid Graph Convolutional Network – Gated Recurrent Unit (GCN-GRU) model is trained on the PeMS-04 dataset, and its predictions are used to dynamically optimize routing decisions in real time.
 
-## 🌟 Features
+The complete system is deployed using a Flask backend with an interactive web-based dashboard.
 
-* **AI-Powered Traffic Forecasting:**
-  A `TemporalGCNGRU` model built with PyTorch captures both spatial (road layout) and temporal (time-based) traffic patterns.
+🌟 Key Features
+🧠 AI-Based Traffic Forecasting
 
-* **Dynamic Dijkstra Routing:**
-  Computes:
+A custom TemporalGCNGRU model implemented in PyTorch captures:
 
-  * Shortest physical route (baseline)
-  * "AI Optimized" route using predicted future traffic
+Spatial dependencies (road network structure)
+Temporal patterns (time-of-day and day-of-week variations)
+🛣️ Intelligent Routing Engine
 
-* **Heuristic Topology Transfer:**
-  Applies California-trained model behavior to other cities (demonstrated with Kathmandu).
+Routing is performed using Dijkstra’s Algorithm enhanced with the BPR delay function, enabling realistic travel-time estimation:
 
-* **Interactive Web Dashboard:**
-  Modern "Glassmorphic" UI using HTML, CSS, and JavaScript.
+Shortest Path (baseline) — distance-based routing
+AI-Optimized Path — avoids predicted congestion zones
+🚑 Emergency Isochrone Analysis
+Implements Radial Dijkstra Search (nx.ego_graph)
+Generates reachability zones based on time constraints
+Simulates emergency response coverage under predicted traffic conditions
+🚧 Interactive Roadblock Simulation
+Users can dynamically introduce disruptions such as:
+Accidents
+Road closures
+Flooding or VIP movement
+The system updates graph topology in real time and recomputes optimal routes
+🌍 Heuristic Topology Transfer
+Transfers learned temporal traffic behavior from California (PeMS-04)
+Applies it to other city networks (e.g., Kathmandu)
+Enables deployment in data-scarce environments
+🗺️ Live Traffic Heatmap
 
-* **Live Heatmap Visualization:**
-  Traffic intensity visualization:
+Visualized using Folium:
 
-  * 🟢 Green → Free Flow
-  * 🟠 Orange → Moderate
-  * 🔴 Red → Heavy
-
-* **GPU Acceleration:**
-  Supports CUDA-enabled GPUs for fast training and inference (~sub-2 seconds routing).
-
----
-
-## 🚀 Getting Started
-
-### 📌 Prerequisites
-
-* Python 3.9+
-* (Recommended) NVIDIA GPU with CUDA installed
-
----
-
-## ⚙️ Setup & Installation
-
-### 1️⃣ Clone the Repository
-
-```bash
+Green → Free Flow
+Orange → Moderate Traffic
+Red → Heavy Congestion
+⚡ GPU Acceleration
+Supports CUDA-enabled GPUs
+Enables fast inference and near real-time routing (sub-2 seconds)
+🚀 Getting Started
+📌 Prerequisites
+Python 3.9+
+(Recommended) NVIDIA GPU with CUDA support
+⚙️ Setup & Installation
+1. Clone the Repository
 git clone <your-repository-url>
 cd TrafficControl
-```
-
-### 2️⃣ Create & Activate Virtual Environment
-
-```bash
+2. Create & Activate Virtual Environment
 # Create environment
 python -m venv .venv
 
@@ -66,111 +65,74 @@ python -m venv .venv
 
 # Activate (macOS/Linux)
 source .venv/bin/activate
-```
-
----
-
-### 3️⃣ Install Dependencies
-
-#### 🟢 Option A: GPU Users (CUDA 12.1+)
-
-```bash
+3. Install Dependencies
+GPU Users (CUDA 12.1+)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 pip install numpy pandas scikit-learn flask flask-cors osmnx networkx folium matplotlib
-```
-
-#### ⚪ Option B: CPU Users
-
-```bash
+CPU Users
 pip install torch torchvision torchaudio numpy pandas scikit-learn flask flask-cors osmnx networkx folium matplotlib
-```
+4. Preload Map Data (Recommended)
+python setup_map.py
 
----
+This caches road network data locally to prevent browser timeouts and improve loading speed.
 
-## 💻 Running the Application
-
-### ▶️ Start Backend Server
-
-```bash
+💻 Running the Application
+Start Backend Server
 python app.py
-```
 
-> ⚠️ First run may take 1–2 minutes to download OpenStreetMap data.
-> Wait until the terminal shows: **"Server is ready"**
+Wait until:
 
----
+✅ Advanced Model Loaded.
 
-### 🌐 Launch Frontend
+Server runs at:
+http://127.0.0.1:5000
 
-* Go to the `frontend` folder
-* Open `index.html` in your browser
+Launch Frontend
+Navigate to the frontend folder
+Open index.html in your browser
+🧪 Using the Dashboard
+A. Routing Simulation
+Click "Launch Simulation"
+Select city
+Left-click to set Start and End points
+Right-click to add roadblocks
+Select day and time
+Click "Run AI Simulation"
 
----
+Outputs:
 
-## 🧪 Using the Simulation
+Traffic heatmap
+Shortest vs AI-optimized route comparison
+B. Emergency Isochrones
+Open "Emergency Isochrones" tab
+Select location or hospital
+Set time limit and prediction time
+Click "Generate Isochrone Map"
 
-1. Click **"Launch Simulation"**
-2. Select deployment city (San Francisco / Kathmandu)
-3. Choose:
+Output:
 
-   * Start point (Green)
-   * End point (Red)
-4. Select:
-
-   * Day of Week
-   * Time (0–23)
-5. Click **"Run AI Simulation"**
-
-➡️ View:
-
-* Predicted traffic heatmap
-* AI-optimized route vs shortest path
-
----
-
-## 🧠 Training the Model (Optional)
-
-To retrain the model:
-
-```bash
+Reachable area under predicted traffic
+🧠 Model Training (Optional)
+Train Model
 python train_temporal_gcn_gru.py
-```
-
-* Runs for **50 epochs**
-* Splits data: **80% train / 20% validation**
-* Outputs **MSE loss**
-* Saves model as: `traffic_model_temporal.pth`
-
-To plot learning curves:
-
-```bash
+50 epochs
+80/20 train-validation split
+Output: traffic_model_temporal.pth
+Plot Results
 python plot_results.py
-```
 
----
+Generates loss curves and convergence plots.
 
-## 👥 Development Team
+👥 Development Team
+Adarsha Rai — Model Research & Data Pipeline
+Agraj Singh Adhikari — System Integration & Backend
+Amuhang Limbu Rai — Documentation & Analysis
+Gaurav Adhikari — Frontend Architecture & UI/UX
 
-Developed as Major Project **[CT707]** by:
-
-* **Adarsha Rai (KAT078BCT014)** — Model Research & Data Pipeline
-* **Agraj Singh Adhikari (KAT078BCT016)** — System Integration & Backend
-* **Amuhang Limbu Rai (KAT078BCT017)** — Documentation & Analysis
-* **Gaurav Adhikari (KAT078BCT034)** — Frontend Architecture & UI/UX
-
-📍 Kathmandu Engineering College
+Kathmandu Engineering College
 Department of Computer Engineering
 
----
-
-## 📌 Notes
-
-* Ensure GPU drivers and CUDA are correctly installed for acceleration.
-* Internet connection required for initial map data download.
-* Model performance depends on dataset quality and preprocessing.
-
----
-
-## 📄 License
-
-This project is developed for academic purposes. Licensing terms can be added as needed.
+📌 Notes
+Ensure CUDA and GPU drivers are properly configured
+Internet required only for initial map download
+Model performance depends on data quality and preprocessing
