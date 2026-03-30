@@ -1,4 +1,4 @@
-🚦 Spatio-Temporal Traffic Forecasting & Predictive Routing (CT707)
+# # 🚦 Spatio-Temporal Traffic Forecasting & Predictive Routing (CT707)
 
 This repository presents the implementation of the major project:
 
@@ -11,8 +11,9 @@ A hybrid Graph Convolutional Network – Gated Recurrent Unit (GCN-GRU) model is
 
 The complete system is deployed using a Flask backend with an interactive web-based dashboard.
 
-🌟 Key Features
-🧠 AI-Based Traffic Forecasting
+# # 🌟 Key Features
+
+# 🧠 AI-Based Traffic Forecasting
 
 A custom TemporalGCNGRU model implemented in PyTorch captures:
 
@@ -22,34 +23,34 @@ Temporal patterns (time-of-day and day-of-week variations)
 
 Routing is performed using Dijkstra’s Algorithm enhanced with the BPR delay function, enabling realistic travel-time estimation:
 
-Shortest Path (baseline) — distance-based routing
-AI-Optimized Path — avoids predicted congestion zones
-🚑 Emergency Isochrone Analysis
+Shortest Path (baseline) - distance-based routing
+AI-Optimized Path - avoids predicted congestion zones
+# 🚑 Emergency Isochrone Analysis
 Implements Radial Dijkstra Search (nx.ego_graph)
 Generates reachability zones based on time constraints
 Simulates emergency response coverage under predicted traffic conditions
-🚧 Interactive Roadblock Simulation
+# 🚧 Interactive Roadblock Simulation
 Users can dynamically introduce disruptions such as:
 Accidents
 Road closures
 Flooding or VIP movement
 The system updates graph topology in real time and recomputes optimal routes
-🌍 Heuristic Topology Transfer
+# 🌍 Heuristic Topology Transfer
 Transfers learned temporal traffic behavior from California (PeMS-04)
 Applies it to other city networks (e.g., Kathmandu)
 Enables deployment in data-scarce environments
-🗺️ Live Traffic Heatmap
+# 🗺️ Live Traffic Heatmap
 
 Visualized using Folium:
 
 Green → Free Flow
 Orange → Moderate Traffic
 Red → Heavy Congestion
-⚡ GPU Acceleration
+# ⚡ GPU Acceleration
 Supports CUDA-enabled GPUs
 Enables fast inference and near real-time routing (sub-2 seconds)
-🚀 Getting Started
-📌 Prerequisites
+# # 🚀 Getting Started
+# 📌 Prerequisites
 Python 3.9+
 (Recommended) NVIDIA GPU with CUDA support
 ⚙️ Setup & Installation
@@ -76,7 +77,7 @@ python setup_map.py
 
 This caches road network data locally to prevent browser timeouts and improve loading speed.
 
-💻 Running the Application
+# 💻 Running the Application
 Start Backend Server
 python app.py
 
@@ -99,7 +100,7 @@ Right-click to add roadblocks
 Select day and time
 Click "Run AI Simulation"
 
-Outputs:
+# Outputs:
 
 Traffic heatmap
 Shortest vs AI-optimized route comparison
@@ -109,10 +110,10 @@ Select location or hospital
 Set time limit and prediction time
 Click "Generate Isochrone Map"
 
-Output:
+# Output:
 
 Reachable area under predicted traffic
-🧠 Model Training (Optional)
+# 🧠 Model Training (Optional)
 Train Model
 python train_temporal_gcn_gru.py
 50 epochs
@@ -123,16 +124,16 @@ python plot_results.py
 
 Generates loss curves and convergence plots.
 
-👥 Development Team
-Adarsha Rai — Model Research & Data Pipeline
-Agraj Singh Adhikari — System Integration & Backend
-Amuhang Limbu Rai — Documentation & Analysis
-Gaurav Adhikari — Frontend Architecture & UI/UX
+# # 👥 Development Team
+Adarsha Rai
+Agraj Singh Adhikari
+Amuhang Limbu Rai
+Gaurav Adhikari
 
 Kathmandu Engineering College
 Department of Computer Engineering
 
-📌 Notes
+# 📌 Notes
 Ensure CUDA and GPU drivers are properly configured
 Internet required only for initial map download
 Model performance depends on data quality and preprocessing
