@@ -11,6 +11,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <style>
+        #live-location-btn {
+    position: absolute;
+    top: 60px; /* Below the header */
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: #10b981; /* Emerald Green */
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%; /* Perfect Circle */
+    cursor: pointer;
+    z-index: 1000; /* Stays above the map */
+    display: none; /* Hidden by default, shown for Kathmandu */
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: 0.2s;
+}
+
+#live-location-btn:hover {
+    background: #059669;
+    transform: scale(1.1);
+}
+
+/* Ensure the map container can hold the absolute button */
+.map-selector-section {
+    position: relative;
+}
         :root { --bg-dark: #09090b; --bg-card: rgba(39, 39, 42, 0.4); --border-color: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-muted: #a1a1aa; --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.5); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%); }
@@ -127,17 +156,20 @@
                     <h3><i class="fa-solid fa-map-pin"></i> Select Points on Map</h3>
                     <button id="clearRbBtn" style="display: none; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s;">
                         <i class="fa-solid fa-eraser"></i> Clear Roadblock
-                    </button>
+                    </button> 
                 </div>
+                 <button type="button" id="live-location-btn" onclick="useLiveLocation()" title="Use Live Location">
+               <i class="fa-solid fa-location-crosshairs"></i>
+                  </button>
                 <div id="selector-map"></div>
                 <div class="map-instructions" id="mapInstructions">
                     <i class="fa-solid fa-info-circle"></i> <strong>Tap/Left-Click</strong>: Set Start/End. &nbsp;|&nbsp; <strong>Long-Press/Right-Click</strong>: Place Roadblocks.
                 </div>
-            </div>
+                            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
 
-            <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin-bottom: 15px;">Coordinates</h3>
-                <div class="controls-row">
+                <h3 style="color: white; font-size: 15px; margin-bottom: 15px;">Coordinates </h3>
+                
+               
                     <div class="input-group">
                         <label for="start_lat">Start Lat</label>
                         <input type="number" id="start_lat" class="custom-input" step="0.0001">
@@ -252,6 +284,14 @@
                 const el = document.getElementById(id);
                 if (el) el.value = defaultValues[id];
             });
+        
+    // --- INSERT STEP 2 HERE ---
+    const liveLocBtn = document.getElementById('live-location-btn');
+    if (selectedCity === 'kathmandu') {
+        liveLocBtn.style.display = 'flex'; // Shows the button if Kathmandu
+    } else {
+        liveLocBtn.style.display = 'none'; // Hides the button if San Francisco
+    }   
             initializeMap();
         });
 
@@ -375,6 +415,70 @@
                 alert('Connection Failed: Ensure your Flask backend (app.py) is running on port 5000.');
             });
         });
+
+function useLiveLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+    }
+
+    loader.style.display = 'flex'; // Show your loading spinner
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            loader.style.display = 'none';
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // 1. Kathmandu Boundary Check
+            const KTM_BOUNDS = { minLat: 27.60, maxLat: 27.80, minLon: 85.20, maxLon: 85.50 };
+            const isInside = lat >= KTM_BOUNDS.minLat && lat <= KTM_BOUNDS.maxLat && 
+                             lon >= KTM_BOUNDS.minLon && lon <= KTM_BOUNDS.maxLon;
+
+            if (isInside) {
+                // 2. Update Input Boxes
+                document.getElementById('start_lat').value = lat.toFixed(6);
+                document.getElementById('start_lon').value = lon.toFixed(6);
+
+                // 3. REMOVE OLD START MARKER (if it exists)
+                if (startMarker) {
+                    selectorMap.removeLayer(startMarker);
+                }
+
+                // 4. CREATE NEW START MARK (Green Circle with Glow)
+                startMarker = L.circleMarker([lat, lon], {
+                    radius: 10,
+                    fillColor: '#10b981', // Emerald Green
+                    color: '#ffffff',     // White border
+                    weight: 3,
+                    fillOpacity: 1.0
+                }).addTo(selectorMap);
+
+                // 5. ADD A POPUP
+                startMarker.bindPopup("<b>Your Live Location</b><br>Start Point Set.").openPopup();
+
+                // 6. FLY MAP TO YOUR LOCATION (Zoom Level 16)
+                selectorMap.flyTo([lat, lon], 16, {
+                    animate: true,
+                    duration: 1.5
+                });
+
+                // 7. SET STATE: Next click on map will be the END point
+                selectionMode = 'start'; 
+                
+                console.log("Live Start Mark placed at:", lat, lon);
+            } else {
+                alert(`Outside Zone: Your location (${lat.toFixed(2)}, ${lon.toFixed(2)}) is outside Kathmandu.`);
+            }
+        },
+        (error) => {
+            loader.style.display = 'none';
+            alert("Location Error: Please ensure you are using HTTPS and GPS is enabled.");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
+        
     </script>
 </body>
 </html>

@@ -124,6 +124,7 @@ def get_city_graph(city_id):
 # --- 5. API ENDPOINTS ---
 @app.route('/get_overview', methods=['POST', 'GET'])
 def get_overview():
+
     try:
         user_agent = request.headers.get('User-Agent', '').lower()
         is_mobile = 'mobile' in user_agent or 'android' in user_agent or 'iphone' in user_agent
@@ -168,7 +169,7 @@ def get_overview():
         return jsonify({'map_html': m._repr_html_()})
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500,
 
 
 @app.route('/get_route', methods=['POST'])

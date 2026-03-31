@@ -11,6 +11,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <style>
+        #live-location-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transition: 0.2s;
+}
+
+#live-location-btn:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+#custom-pin-section { position: relative; }
         :root { --bg-dark: #09090b; --bg-card: rgba(39, 39, 42, 0.4); --border-color: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-muted: #a1a1aa; --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.5); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%); }
@@ -116,14 +142,46 @@
                 <div class="toggle-btn" id="modeHospitals" onclick="setMode('hospitals')"><i class="fa-solid fa-hospital"></i> Major City Hospitals</div>
             </div>
 
-            <div id="custom-pin-section">
-                <div id="selector-map"></div>
-                <div class="map-instructions" id="mapInstructions">
-                    <i class="fa-solid fa-info-circle"></i> Click to drop an emergency dispatch pin.
-                </div>
-                <input type="hidden" id="start_lat" value="27.7172">
-                <input type="hidden" id="start_lon" value="85.3240">
-            </div>
+<div id="custom-pin-section">
+    <div style="position: relative;">
+        <!-- SMALL FLOATING LIVE LOCATION BUTTON -->
+        <button type="button" id="live-location-btn" onclick="useLiveLocation()" title="Use Live Location">
+            <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+        
+        <div id="selector-map"></div>
+    </div>
+    
+    <div class="map-instructions" id="mapInstructions">
+        <i class="fa-solid fa-info-circle"></i> Click to drop an emergency dispatch pin or use the GPS button.
+    </div>
+
+    <!-- VISIBLE COORDINATE SECTION -->
+<div class="input-group">
+    <label for="region_select">Major Kathmandu Junctions</label>
+   <select id="region_select" class="custom-input" onchange="onDropdownChange()">
+    <option value="-1">-- Custom Point --</option>
+    <option value="0">Kalimati</option>
+    <option value="1">Kalanki</option>
+    <option value="2">Koteshwor</option>
+    <option value="3">Chabahil Junction</option>
+    <option value="4">Thapathali</option>
+    <option value="5">Gaushala</option>
+    <option value="6">Tripureswor</option>
+    <option value="7">Maharajgunj</option>
+    <option value="8">Ratnapark</option>
+</select>
+    <div class="controls-row" style="margin-bottom: 20px;">
+        <div class="input-group">
+            <label>Dispatch Latitude</label>
+            <input type="number" id="start_lat" class="custom-input" step="0.0001" value="27.7172">
+        </div>
+        <div class="input-group">
+            <label>Dispatch Longitude</label>
+            <input type="number" id="start_lon" class="custom-input" step="0.0001" value="85.3240">
+        </div>
+    </div>
+  </div>
 
             <div>
                 <div class="controls-row">
@@ -174,6 +232,7 @@
     </div>
 
     <script>
+        
         function toggleSidebar() {
             document.querySelector(".sidebar").classList.toggle("active");
             document.getElementById("sidebar-overlay").classList.toggle("active");
@@ -206,13 +265,16 @@
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CartoDB' }).addTo(selectorMap);
             pinMarker = L.circleMarker(ktmCenter, { radius: 8, fillColor: '#3b82f6', color: '#2563eb', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
 
-            selectorMap.on('click', (e) => {
-                const { lat, lng } = e.latlng;
-                document.getElementById('start_lat').value = lat; document.getElementById('start_lon').value = lng;
-                if(pinMarker) selectorMap.removeLayer(pinMarker);
-                pinMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#2563eb', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
-                document.getElementById('mapInstructions').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> Dispatch Location Set.';
-            });
+ selectorMap.on('click', (e) => {
+    const { lat, lng } = e.latlng;
+    // Update visible inputs
+    document.getElementById('start_lat').value = lat.toFixed(6); 
+    document.getElementById('start_lon').value = lng.toFixed(6);
+    
+    if(pinMarker) selectorMap.removeLayer(pinMarker);
+    pinMarker = L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#2563eb', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
+    document.getElementById('mapInstructions').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> Dispatch Location Set.';
+         });
         });
 
         document.getElementById('backBtn').addEventListener('click', () => {
@@ -245,6 +307,147 @@
             })
             .catch(err => { loader.style.display = 'none'; alert('Connection Failed.'); });
         });
+        function useLiveLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+    }
+
+    loader.style.display = 'flex';
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            loader.style.display = 'none';
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Kathmandu Boundary Check
+            const KTM_BOUNDS = { minLat: 27.60, maxLat: 27.80, minLon: 85.20, maxLon: 85.50 };
+            const isInside = lat >= KTM_BOUNDS.minLat && lat <= KTM_BOUNDS.maxLat && 
+                             lon >= KTM_BOUNDS.minLon && lon <= KTM_BOUNDS.maxLon;
+
+            if (isInside) {
+                document.getElementById('start_lat').value = lat.toFixed(6);
+                document.getElementById('start_lon').value = lon.toFixed(6);
+
+                if (pinMarker) selectorMap.removeLayer(pinMarker);
+                pinMarker = L.circleMarker([lat, lon], { radius: 8, fillColor: '#3b82f6', color: '#2563eb', weight: 2, fillOpacity: 0.8 }).addTo(selectorMap);
+                
+                selectorMap.flyTo([lat, lon], 15);
+                document.getElementById('mapInstructions').innerHTML = '<i class="fa-solid fa-location-dot" style="color:#3b82f6;"></i> Live Location Verified.';
+            } else {
+                alert(`Outside Zone: Your location (${lat.toFixed(2)}, ${lon.toFixed(2)}) is outside the Kathmandu area.`);
+            }
+        },
+        (error) => {
+            loader.style.display = 'none';
+            alert("Error: Unable to retrieve location. Ensure you are using HTTPS or localhost.");
+        },
+        { enableHighAccuracy: true }
+    );
+}
+// 1. Data Source: Junctions with specific Lat/Lon "Zones" (Bounding Boxes)
+const KTM_ZONES = [
+    { 
+        name: "Kalimati", center: [27.6981, 85.3013],
+        minLat: 27.693, maxLat: 27.703, minLon: 85.296, maxLon: 85.306 
+    },
+    { 
+        name: "Kalanki", center: [27.6936, 85.2806],
+        minLat: 27.688, maxLat: 27.698, minLon: 85.275, maxLon: 85.285 
+    },
+    { 
+        name: "Koteshwor", center: [27.6745, 85.3468],
+        minLat: 27.669, maxLat: 27.680, minLon: 85.341, maxLon: 85.352 
+    },
+    { 
+        name: "Chabahil", center: [27.7214, 85.3512],
+        minLat: 27.716, maxLat: 27.726, minLon: 85.346, maxLon: 85.356 
+    },
+    { 
+        name: "Thapathali", center: [27.6933, 85.3168],
+        minLat: 27.688, maxLat: 27.698, minLon: 85.311, maxLon: 85.321 
+    },
+    { 
+        name: "Gaushala", center: [27.7120, 85.3468],
+        minLat: 27.707, maxLat: 27.717, minLon: 85.341, maxLon: 85.351 
+    },
+    { 
+        name: "Tripureswor", center: [27.6953, 85.3115],
+        minLat: 27.690, maxLat: 27.700, minLon: 85.306, maxLon: 85.316 
+    },
+    { 
+        name: "Maharajgunj", center: [27.7350, 85.3310],
+        minLat: 27.730, maxLat: 27.740, minLon: 85.326, maxLon: 85.336 
+    },
+    { 
+        name: "Ratnapark", center: [27.7050, 85.3150],
+        minLat: 27.700, maxLat: 27.710, minLon: 85.310, maxLon: 85.320 
+    }
+];
+
+// CORE ANALYSIS FUNCTION: Checks if current coordinates fall inside any box
+function analyzeZonesAndSync() {
+    const lat = parseFloat(document.getElementById('start_lat').value);
+    const lon = parseFloat(document.getElementById('start_lon').value);
+    const dropdown = document.getElementById('region_select');
+
+    if (isNaN(lat) || isNaN(lon)) return;
+
+    let identifiedIndex = "-1"; // Default to Custom
+
+    // Loop through each zone and check the range
+    KTM_ZONES.forEach((zone, index) => {
+        const isLatInRange = lat >= zone.minLat && lat <= zone.maxLat;
+        const isLonInRange = lon >= zone.minLon && lon <= zone.maxLon;
+
+        if (isLatInRange && isLonInRange) {
+            identifiedIndex = index.toString();
+        }
+    });
+
+    // Update the Dropdown selection
+    dropdown.value = identifiedIndex;
+
+    // Update the visual marker on map
+    if (pinMarker) selectorMap.removeLayer(pinMarker);
+    pinMarker = L.circleMarker([lat, lon], { 
+        radius: 10, fillColor: '#3b82f6', color: '#ffffff', weight: 3, fillOpacity: 0.9 
+    }).addTo(selectorMap);
+    
+    console.log(`Zone Analysis: ${identifiedIndex === "-1" ? "Outside Zones" : KTM_ZONES[identifiedIndex].name}`);
+}
+
+// DROPDOWN SELECTION -> Update Map & Inputs
+function onDropdownChange() {
+    const select = document.getElementById('region_select');
+    const index = parseInt(select.value);
+
+    if (index === -1) return;
+
+    const zone = KTM_ZONES[index];
+    
+    // Fill the Lat/Lon boxes with the exact CENTER of the selected zone
+    document.getElementById('start_lat').value = zone.center[0].toFixed(6);
+    document.getElementById('start_lon').value = zone.center[1].toFixed(6);
+
+    // Sync UI elements
+    analyzeZonesAndSync();
+    selectorMap.flyTo(zone.center, 15);
+}
+
+// MAP CLICK -> Update Inputs & Analyze
+selectorMap.on('click', (e) => {
+    document.getElementById('start_lat').value = e.latlng.lat.toFixed(6);
+    document.getElementById('start_lon').value = e.latlng.lng.toFixed(6);
+    
+    // Analyze if this specific click is within any coordinate range
+    analyzeZonesAndSync();
+});
+
+// Typing Listeners
+document.getElementById('start_lat').addEventListener('input', analyzeZonesAndSync);
+document.getElementById('start_lon').addEventListener('input', analyzeZonesAndSync);
     </script>
 </body>
 </html>
