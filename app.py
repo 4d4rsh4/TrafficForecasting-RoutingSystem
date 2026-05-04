@@ -104,7 +104,7 @@ CITY_QUERIES = {'san_francisco': "San Francisco, California", 'kathmandu': "Kath
 
 def get_city_graph(city_id):
     if city_id in CACHED_GRAPHS: return CACHED_GRAPHS[city_id]
-    file_name = f"{city_id}_map.graphml"
+    file_name = f"data/{city_id}_map.graphml"
     if os.path.exists(file_name):
         print(f"Loading {city_id} map from disk...")
         G = ox.load_graphml(file_name)
@@ -137,7 +137,7 @@ def get_overview():
         predicted_flows = scaler.inverse_transform(preds[0, 0,:].cpu().numpy().reshape(-1, 1)).flatten()
         
         # Load optimized homepage graph
-        file_name = "sf_highway_map.graphml"
+        file_name = "data/sf_highway_map.graphml"
         if os.path.exists(file_name):
             G = ox.load_graphml(file_name)
         else:

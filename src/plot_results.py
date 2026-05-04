@@ -19,5 +19,5 @@ plt.annotate(f'Final Val Loss: {actual_val_loss[-1]:.4f}',
              arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5))
 
 plt.tight_layout()
-plt.savefig('final_results_graph.png', dpi=300)
+plt.savefig('outputs/final_results_graph.png', dpi=300)
 plt.show()
