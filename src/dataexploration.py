@@ -104,6 +104,6 @@ plt.grid(True, linestyle='--', alpha=0.5)
 plt.legend()
 
 # Save for the report
-plt.savefig('ai_prediction_output.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/ai_prediction_output.png', dpi=300, bbox_inches='tight')
 print("✅ Success! Output graph saved as 'ai_prediction_output.png'.")
 plt.show()
