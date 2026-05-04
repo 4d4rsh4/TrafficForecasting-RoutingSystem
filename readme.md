@@ -9,7 +9,7 @@ This repository presents the implementation of the major project:
 
 Submitted to the **Department of Computer Engineering, Kathmandu Engineering College, Tribhuvan University**.
 
-The system integrates deep learning-based traffic prediction with a dynamic routing engine to generate navigation paths by prdicting future traffic congestion.
+The system integrates deep learning-based traffic prediction with a dynamic routing engine to generate navigation paths by predicting future traffic congestion.
 
 A combination of Graph Convolutional Network – Gated Recurrent Unit (GCN-GRU) or simply Temporal Graph Convolution Network (T-GCN) model is trained on the PeMS-04 dataset, and its predictions are used to dynamically optimize routing decisions in real time.
 
